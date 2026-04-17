@@ -11,17 +11,17 @@ Personal portfolio for Iain Morton. Built with Astro + Tailwind CSS, deployed on
 ## Local Development
 
 ```bash
-# Install dependencies (Node ≥ 20 required)
-pnpm install
+# Install dependencies (Node 24 required)
+npm install
 
 # Start dev server at http://localhost:4321
-pnpm dev
+npm run dev
 
 # Production build
-pnpm build
+npm run build
 
 # Preview production build locally
-pnpm preview
+npm run preview
 ```
 
 > **Note on CSP in dev:** The nonce middleware runs on Cloudflare Pages only. In local dev, inline styles are unrestricted. This is expected and doesn't affect production security.
@@ -47,11 +47,11 @@ To update the site:
 2. Select **Connect to Git** → choose GitHub → select this repo (`impingu1984/web`)
 3. Build settings:
    - **Framework preset:** Astro
-   - **Build command:** `pnpm build`
+   - **Build command:** `npm run build`
    - **Build output directory:** `dist`
    - **Root directory:** `/` (leave blank)
 4. **Environment variables** — add:
-   - `NODE_VERSION` = `22`
+   - `NODE_VERSION` = `24`
 5. Click **Save and Deploy**
 
 ### 2. Custom Domain
