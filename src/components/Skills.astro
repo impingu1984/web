@@ -1,0 +1,82 @@
+---
+// src/components/Skills.astro
+import { skillClusters } from '../data/cv';
+
+// Icon map for cluster names (inline SVG paths, simple)
+const icons: Record<string, string> = {
+  'Leadership': 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+  'Cloud & Infrastructure': 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z',
+  'Data Platform': 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4',
+  'DevOps & CI/CD': 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+  'Security': 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  'Application Stack': 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  'Methodology': 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+};
+---
+
+<section
+  id="skills"
+  class="py-24 md:py-32 px-6 md:px-12 lg:px-24 bg-surface"
+  aria-labelledby="skills-heading"
+>
+  <div class="max-w-6xl mx-auto">
+    <!-- Section label -->
+    <p class="reveal font-mono text-accent text-sm mb-3 tracking-widest uppercase">
+      02 / Core Competencies
+    </p>
+
+    <h2
+      id="skills-heading"
+      class="reveal reveal-delay-1 font-display text-3xl md:text-5xl font-bold text-text mb-12"
+    >
+      Skills &amp; Expertise
+    </h2>
+
+    <div class="reveal reveal-delay-2 w-16 h-px bg-accent mb-16"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {skillClusters.map((cluster, ci) => (
+        <div
+          class={`reveal reveal-delay-${Math.min(ci + 1, 5)} group p-6 rounded-sm border border-border bg-surface-alt hover:border-accent transition-colors duration-300`}
+          role="region"
+          aria-label={`${cluster.name} skills`}
+        >
+          <!-- Cluster header -->
+          <div class="flex items-center gap-3 mb-4">
+            {icons[cluster.name] && (
+              <div class="w-8 h-8 flex items-center justify-center rounded-sm bg-surface border border-border group-hover:border-accent transition-colors duration-300 flex-shrink-0" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#00d4ff"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d={icons[cluster.name]} />
+                </svg>
+              </div>
+            )}
+            <h3 class="font-mono text-accent text-sm font-bold uppercase tracking-wider">
+              {cluster.name}
+            </h3>
+          </div>
+
+          <!-- Skill pills -->
+          <div class="flex flex-wrap gap-2" role="list">
+            {cluster.skills.map((skill) => (
+              <span
+                class="font-mono text-xs text-text-muted bg-surface border border-border rounded-sm px-2 py-1 hover:border-accent hover:text-accent transition-colors duration-200"
+                role="listitem"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

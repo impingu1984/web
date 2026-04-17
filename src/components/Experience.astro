@@ -1,0 +1,72 @@
+---
+// src/components/Experience.astro
+import { experience } from '../data/cv';
+---
+
+<section
+  id="experience"
+  class="py-24 md:py-32 px-6 md:px-12 lg:px-24"
+  aria-labelledby="experience-heading"
+>
+  <div class="max-w-4xl mx-auto">
+    <!-- Section label -->
+    <p class="reveal font-mono text-accent text-sm mb-3 tracking-widest uppercase">
+      03 / Career History
+    </p>
+
+    <h2
+      id="experience-heading"
+      class="reveal reveal-delay-1 font-display text-3xl md:text-5xl font-bold text-text mb-12"
+    >
+      Work Experience
+    </h2>
+
+    <div class="reveal reveal-delay-2 w-16 h-px bg-accent mb-16"></div>
+
+    <!-- Timeline -->
+    <ol class="relative" aria-label="Work history timeline">
+      {experience.map((role, i) => (
+        <li
+          class={`reveal reveal-delay-${Math.min(i + 1, 5)} relative pl-8 pb-16 last:pb-0`}
+        >
+          <!-- Timeline line -->
+          <div
+            class="absolute left-0 top-0 bottom-0 w-px bg-border last:hidden"
+            aria-hidden="true"
+          ></div>
+
+          <!-- Timeline dot -->
+          <div
+            class="absolute left-0 top-1 w-2 h-2 rounded-full bg-accent -translate-x-1/2 ring-4 ring-background"
+            aria-hidden="true"
+          ></div>
+
+          <!-- Role header -->
+          <header class="mb-4">
+            <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-1">
+              <h3 class="font-display text-xl md:text-2xl font-bold text-text">
+                {role.title}
+              </h3>
+              <time class="font-mono text-accent text-sm" datetime={role.period}>
+                {role.period}
+              </time>
+            </div>
+            <p class="font-mono text-text-muted text-sm italic">
+              {role.company}
+            </p>
+          </header>
+
+          <!-- Bullet points -->
+          <ul class="space-y-2" aria-label={`${role.title} responsibilities and achievements`}>
+            {role.bullets.map((bullet) => (
+              <li class="flex gap-3 text-text-muted text-sm md:text-base leading-relaxed">
+                <span class="text-accent mt-1 flex-shrink-0 font-mono" aria-hidden="true">›</span>
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
