@@ -4,6 +4,7 @@
 #
 # Target: Mozilla HTTP Observatory A+ (≥ 115 points)
 
+# HTML pages — all security headers
 /*
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Frame-Options: DENY
@@ -12,4 +13,20 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+
+# Static assets — must declare CORP so COEP allows them to load
+/_astro/*
+  Cross-Origin-Resource-Policy: same-origin
+
+/fonts/*
+  Cross-Origin-Resource-Policy: same-origin
+
+/*.css
+  Cross-Origin-Resource-Policy: same-origin
+
+/*.js
+  Cross-Origin-Resource-Policy: same-origin
+
+/favicon.svg
   Cross-Origin-Resource-Policy: same-origin

@@ -22,10 +22,10 @@ export async function onRequest(context) {
   const nonce = crypto.randomUUID().replace(/-/g, '');
 
   // Read and modify HTML body — inject nonce into every <style> tag
+  // Handles: <style>, <style type="text/css">, but skips if nonce already present
   let body = await response.text();
-  body = body.replace(/<style(\s[^>]*)?>/gi, (match, attrs) => {
-    const existing = attrs || '';
-    return `<style${existing} nonce="${nonce}">`;
+  body = body.replace(/<style(?![^>]*nonce)([^>]*)>/gi, (match, attrs) => {
+    return `<style${attrs} nonce="${nonce}">`;
   });
 
   // Build strict CSP with nonce
