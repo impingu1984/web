@@ -125,4 +125,18 @@ const {
     scrollbar-color: var(--color-border) var(--color-bg);
     scrollbar-width: thin;
   }
+
+  /* Replaces inline style="" attributes — keeps CSP clean (no style-src-attr needed) */
+  .nav-backdrop {
+    background: rgba(10, 14, 19, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(30, 45, 61, 0.6);
+  }
+  .nav-mobile-dropdown {
+    background: rgba(10, 14, 19, 0.97);
+    border-bottom: 1px solid #1e2d3d;
+  }
+  .hero-glow {
+    background: radial-gradient(circle, #00d4ff 0%, transparent 70%);
+  }
 </style>

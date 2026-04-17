@@ -11,8 +11,7 @@ const navLinks = [
 ---
 
 <nav
-  class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between"
-  style="background: rgba(10, 14, 19, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(30, 45, 61, 0.6);"
+  class="nav-backdrop fixed top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between"
   aria-label="Primary navigation"
 >
   <!-- Wordmark -->
@@ -64,8 +63,7 @@ const navLinks = [
 
   <!-- Mobile dropdown -->
   <div
-    class="absolute top-full left-0 right-0 hidden peer-checked:flex flex-col gap-0 md:hidden"
-    style="background: rgba(10, 14, 19, 0.97); border-bottom: 1px solid #1e2d3d;"
+    class="nav-mobile-dropdown absolute top-full left-0 right-0 hidden peer-checked:flex flex-col gap-0 md:hidden"
   >
     {navLinks.map((link) => (
       <a

@@ -2,17 +2,16 @@
 // Cloudflare Pages Edge Function — runs on every request (free tier).
 // Generates a cryptographic nonce per request and injects it into:
 //   1. The Content-Security-Policy response header
-//   2. Every <style> tag in the HTML response body
+//   2. Every <style> and <script> tag in the HTML response body
 //
-// This eliminates 'unsafe-inline' from style-src, satisfying Mozilla Observatory A+.
+// No inline style="" attributes exist in the HTML — all moved to CSS classes.
+// This means no style-src-attr directive is needed.
 
 export async function onRequest(context) {
   const { next } = context;
 
-  // Fetch the response from the static asset
   const response = await next();
 
-  // Only process HTML responses
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) {
     return response;
@@ -21,19 +20,18 @@ export async function onRequest(context) {
   // Generate a cryptographically random nonce per request
   const nonce = crypto.randomUUID().replace(/-/g, '');
 
-  // Read and modify HTML body — inject nonce into every <style> tag
-  // Handles: <style>, <style type="text/css">, but skips if nonce already present
+  // Inject nonce into every <style> and <script> tag (skip if already nonced)
   let body = await response.text();
-  body = body.replace(/<style(?![^>]*nonce)([^>]*)>/gi, (match, attrs) => {
-    return `<style${attrs} nonce="${nonce}">`;
-  });
+  body = body.replace(/<style(?![^>]*nonce)([^>]*)>/gi,  (_, attrs) => `<style${attrs} nonce="${nonce}">`);
+  body = body.replace(/<script(?![^>]*nonce)([^>]*)>/gi, (_, attrs) => `<script${attrs} nonce="${nonce}">`);
 
   // Build strict CSP with nonce
+  // font-src includes data: because @fontsource embeds font files as data URIs in CSS
   const csp = [
     "default-src 'none'",
-    "script-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
     `style-src 'self' 'nonce-${nonce}'`,
-    "font-src 'self'",
+    "font-src 'self' data:",
     "img-src 'self' data:",
     "connect-src 'self'",
     "form-action 'none'",
@@ -42,7 +40,6 @@ export async function onRequest(context) {
     "upgrade-insecure-requests",
   ].join('; ');
 
-  // Return modified response with CSP header added
   const newHeaders = new Headers(response.headers);
   newHeaders.set('Content-Security-Policy', csp);
 
