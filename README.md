@@ -38,7 +38,7 @@ git commit -m "type: description"
 git push
 ```
 
-Cloudflare Pages automatically builds and deploys on every push. Each deployment gets a unique URL in the format:
+Cloudflare Pages automatically builds and deploys on every push. Build cache is enabled, so subsequent builds are significantly faster than the initial cold build — typically well under 60 seconds for incremental changes.
 
 ```
 https://<hash>.iainmorton.pages.dev
@@ -137,7 +137,8 @@ git push
    - **Root directory:** `/` (leave blank)
 4. **Environment variables** — add:
    - `NODE_VERSION` = `24`
-5. Click **Save and Deploy**
+5. **Build cache** — enable under **Settings** → **Builds & deployments** → **Build cache**. Caches npm dependencies and Astro build artefacts between deployments, reducing typical build times significantly.
+6. Click **Save and Deploy**
 
 ### 2. Environments
 
