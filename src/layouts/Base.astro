@@ -1,7 +1,5 @@
 ---
 // src/layouts/Base.astro
-// The `nonce` prop is injected by the Cloudflare Pages Function (_middleware.js)
-// via a meta tag, then read here. In local dev, it is absent (fine for dev).
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/700.css';
 import '@fontsource/fraunces/400.css';
@@ -38,7 +36,6 @@ const {
   <body class="bg-background text-text font-body antialiased">
     <slot />
 
-    <!-- Scroll-reveal observer — minimal vanilla JS, well under 50KB budget -->
     <script>
       const observer = new IntersectionObserver(
         (entries) => {
@@ -58,6 +55,46 @@ const {
 </html>
 
 <style is:global>
+  /* Tailwind v4 — CSS-first configuration */
+  @import "tailwindcss";
+
+  @theme {
+    /* Colours */
+    --color-background: #0a0e13;
+    --color-surface: #111820;
+    --color-surface-alt: #1a2230;
+    --color-accent: #00d4ff;
+    --color-accent-dim: #00a8cc;
+    --color-text: #e2e8f0;
+    --color-text-muted: #8899aa;
+    --color-border: #1e2d3d;
+
+    /* Font families */
+    --font-family-mono: "JetBrains Mono", monospace;
+    --font-family-display: "Fraunces", serif;
+    --font-family-body: "JetBrains Mono", monospace;
+
+    /* Animations */
+    --animate-fade-up: fadeUp 0.6s ease forwards;
+    --animate-fade-in: fadeIn 0.5s ease forwards;
+    --animate-blink: blink 1s step-end infinite;
+
+    /* Keyframes */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+  }
+
+  /* CSS custom properties for use outside Tailwind utilities */
   :root {
     --color-accent: #00d4ff;
     --color-accent-dim: #00a8cc;
@@ -69,7 +106,7 @@ const {
     --color-border: #1e2d3d;
   }
 
-  /* Scroll reveal base state */
+  /* Scroll reveal */
   .reveal {
     opacity: 0;
     transform: translateY(22px);
@@ -79,8 +116,6 @@ const {
     opacity: 1;
     transform: translateY(0);
   }
-
-  /* Stagger helpers */
   .reveal-delay-1 { transition-delay: 0.08s; }
   .reveal-delay-2 { transition-delay: 0.16s; }
   .reveal-delay-3 { transition-delay: 0.24s; }
@@ -93,32 +128,6 @@ const {
     color: var(--color-accent);
     animation: blink 1s step-end infinite;
   }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* Accent underline on headings */
-  .accent-line {
-    display: inline-block;
-    position: relative;
-  }
-  .accent-line::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--color-accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
-  }
-  .accent-line.in-view::after,
-  .accent-line:hover::after {
-    transform: scaleX(1);
-  }
 
   /* Smooth scrollbar */
   html {
@@ -126,7 +135,7 @@ const {
     scrollbar-width: thin;
   }
 
-  /* Replaces inline style="" attributes — keeps CSP clean (no style-src-attr needed) */
+  /* Replaces inline style="" attributes — keeps CSP clean */
   .nav-backdrop {
     background: rgba(10, 14, 19, 0.85);
     backdrop-filter: blur(12px);

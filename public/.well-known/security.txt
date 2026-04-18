@@ -1,0 +1,4 @@
+Contact: https://github.com/impingu1984/web/issues
+Expires: 2027-04-18T00:00:00z
+Preferred-Languages: en
+Canonical: https://iainmorton.me/.well-known/security.txt
