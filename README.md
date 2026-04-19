@@ -108,9 +108,81 @@ git push origin v2.1.0
 
 ---
 
-## Updating Content
+## Publishing Blog Posts
 
-**All content lives in one file: `src/data/cv.ts`**
+Blog posts are MDX files stored in `src/data/blogs/`. Publishing follows the standard SDLC — there is no separate authoring tool.
+
+### Writing a new post
+
+Create a new `.mdx` file in `src/data/blogs/`:
+
+```bash
+git checkout preview
+# Create src/data/blogs/your-post-slug.mdx
+git add src/data/blogs/your-post-slug.mdx
+git commit -m "content: add post — your post title"
+git push
+```
+
+Every MDX file requires this frontmatter block at the top:
+
+```mdx
+---
+title: "Your Post Title"
+description: "1–2 sentence summary shown on listing cards and in social previews. Max 160 chars."
+date: 2026-04-18
+tags: ["engineering", "leadership"]
+toc: true
+draft: false
+---
+```
+
+The filename becomes the URL slug: `my-post.mdx` → `https://iainmorton.me/blog/my-post`
+
+### Rich content
+
+```mdx
+import YouTube from '../../components/YouTube.astro';
+
+Inline emoji works natively 🚀
+
+<YouTube id="dQw4w9WgXcQ" title="Accessible title for the embed" />
+
+![Alt text is mandatory](/gifs/local.gif)
+![Alt text is mandatory](https://media.giphy.com/media/abc/giphy.gif)
+```
+
+### Draft posts and the INCLUDE_CONTENT_DRAFTS flag
+
+Set `draft: true` in frontmatter to prevent a post from appearing in production:
+
+```mdx
+draft: true
+```
+
+Draft posts with `draft: true` can still be pushed to `main` — this avoids holding up code changes. They are excluded from the production build entirely (no route, no sitemap entry).
+
+To preview drafts, the `INCLUDE_CONTENT_DRAFTS` environment variable must be set:
+
+| Environment | Value | Effect |
+|---|---|---|
+| Cloudflare Preview | `INCLUDE_CONTENT_DRAFTS=true` | All posts including drafts are built and visible |
+| Cloudflare Production | Not set (or `false`) | Only `draft: false` posts are built |
+
+**To set in Cloudflare Pages:** Dashboard → your project → **Settings** → **Environment variables** → add `INCLUDE_CONTENT_DRAFTS` = `true` for the **Preview** environment only. Do not add it to the Production environment.
+
+### Promoting to production
+
+Once verified on preview:
+1. Raise a PR from `preview` → `main`
+2. Merge
+3. Tag the release: `git tag -a v2.1.1 -m "content: publish [post title]" && git push origin v2.1.1`
+
+---
+
+## Updating CV Content
+
+**All CV content (experience, skills, profile) lives in one file: `src/data/cv.ts`**
 
 ```bash
 git checkout preview
@@ -118,8 +190,7 @@ git checkout preview
 git add src/data/cv.ts
 git commit -m "content: update [section name]"
 git push
-# Verify on the unique deployment URL from Cloudflare Pages dashboard
-# Then raise PR → main and tag the release
+# Verify on deployment URL, then raise PR → main and tag release
 ```
 
 ---

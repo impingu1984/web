@@ -1,0 +1,279 @@
+---
+// src/layouts/BlogPost.astro
+import Base from './Base.astro';
+import Nav from '../components/Nav.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  tags: string[];
+  slug: string;
+  readingTime: number;
+  headings: Heading[];
+  toc: boolean;
+}
+
+const { title, description, date, tags, slug, readingTime, headings, toc } = Astro.props;
+
+const formattedDate = date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+
+const ogImage = `https://iainmorton.me/og/${slug}.png`;
+---
+
+<Base
+  title={`${title} — Iain Morton`}
+  description={description}
+  ogImage={ogImage}
+  ogType="article"
+  ogUrl={`https://iainmorton.me/blog/${slug}`}
+  publishedTime={date.toISOString()}
+>
+  <Nav />
+
+  <!-- Reading progress bar -->
+  <div
+    id="reading-progress-container"
+    class="fixed left-0 right-0 z-40"
+    style="top: 57px;"
+    aria-hidden="true"
+  >
+    <div id="reading-progress-track" class="w-full h-1" style="background: #1a1a1a;">
+      <div
+        id="reading-progress-fill"
+        class="h-full relative"
+        style="background: #00d4ff; width: 0%; transition: width 0.1s linear;"
+      >
+        <span
+          id="reading-progress-label"
+          class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pl-1 font-mono text-xs"
+          style="color: #00d4ff; font-size: 10px; line-height: 1;"
+        >0%</span>
+      </div>
+    </div>
+  </div>
+
+  <main id="main-content" class="pt-20">
+    <div class="max-w-6xl mx-auto px-6 md:px-12 lg:px-24 py-16">
+
+      <!-- Post header -->
+      <header class="max-w-2xl mb-12">
+        <a
+          href="/blog"
+          class="font-mono text-xs text-text-muted hover:text-accent transition-colors duration-200 inline-flex items-center gap-1 mb-8 focus:outline-none focus:ring-2 focus:ring-accent rounded-sm"
+        >
+          ← Back to Writing
+        </a>
+
+        <h1 class="font-display text-3xl md:text-5xl font-bold text-text leading-tight mb-6">
+          {title}
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3 mb-4" id="post-meta">
+          <time datetime={date.toISOString()} class="font-mono text-sm text-text-muted">
+            {formattedDate}
+          </time>
+          <span class="text-border font-mono text-xs">·</span>
+          <span class="font-mono text-sm text-text-muted">{readingTime} min read</span>
+        </div>
+
+        {tags.length > 0 && (
+          <div class="flex flex-wrap gap-2" role="list" aria-label="Tags">
+            {tags.map(tag => (
+              <span
+                class="font-mono text-xs text-text-muted border border-border rounded-sm px-2 py-0.5"
+                role="listitem"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <!-- Content area: prose + optional TOC sidebar -->
+      <div class={`flex gap-16 ${toc && headings.length > 0 ? 'lg:flex-row' : ''}`}>
+
+        <!-- Prose -->
+        <article class="prose-post min-w-0 flex-1 max-w-2xl">
+          {toc && headings.length > 0 && (
+            <div class="lg:hidden mb-8 p-4 border border-border rounded-sm bg-surface-alt">
+              <TableOfContents headings={headings} />
+            </div>
+          )}
+          <slot />
+        </article>
+
+        <!-- TOC sidebar — desktop only -->
+        {toc && headings.length > 0 && (
+          <aside
+            class="hidden lg:block w-56 flex-shrink-0"
+            aria-label="Table of contents"
+          >
+            <div class="sticky top-24">
+              <TableOfContents headings={headings} />
+            </div>
+          </aside>
+        )}
+      </div>
+
+      <!-- Back link -->
+      <footer class="max-w-2xl mt-16 pt-8 border-t border-border">
+        <a
+          href="/blog"
+          class="font-mono text-sm text-accent hover:text-accent-dim transition-colors duration-200 inline-flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent rounded-sm"
+        >
+          ← Back to Writing
+        </a>
+      </footer>
+
+    </div>
+  </main>
+</Base>
+
+<style is:global>
+  /* Prose styles for blog post body */
+  .prose-post {
+    color: var(--color-text-muted, #8899aa);
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.9375rem;
+    line-height: 1.85;
+  }
+  .prose-post h2,
+  .prose-post h3,
+  .prose-post h4 {
+    font-family: var(--font-display, 'Fraunces', serif);
+    color: var(--color-text, #e2e8f0);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  .prose-post h2 { font-size: 1.5rem; }
+  .prose-post h3 { font-size: 1.2rem; }
+  .prose-post h4 { font-size: 1rem; }
+  .prose-post p { margin-bottom: 1.5rem; }
+  .prose-post a {
+    color: #00d4ff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+  }
+  .prose-post a:hover { color: #00a8cc; }
+  .prose-post strong { color: var(--color-text, #e2e8f0); }
+  .prose-post ul,
+  .prose-post ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .prose-post li { margin-bottom: 0.5rem; }
+  .prose-post blockquote {
+    border-left: 3px solid #00d4ff;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: var(--color-text-muted, #8899aa);
+    font-style: italic;
+  }
+  .prose-post code {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.875em;
+    background: var(--color-surface, #111820);
+    border: 1px solid var(--color-border, #1e2d3d);
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    color: #00d4ff;
+  }
+  .prose-post pre {
+    background: var(--color-surface, #111820) !important;
+    border: 1px solid var(--color-border, #1e2d3d);
+    border-radius: 4px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .prose-post pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+  .prose-post img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin: 1.5rem 0;
+  }
+  .prose-post hr {
+    border: none;
+    border-top: 1px solid var(--color-border, #1e2d3d);
+    margin: 2rem 0;
+  }
+  .prose-post table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  .prose-post th,
+  .prose-post td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border, #1e2d3d);
+    text-align: left;
+  }
+  .prose-post th {
+    color: var(--color-text, #e2e8f0);
+    background: var(--color-surface, #111820);
+  }
+</style>
+
+<script>
+  // Reading progress bar
+  const container = document.getElementById('reading-progress-container');
+  const fill = document.getElementById('reading-progress-fill') as HTMLElement | null;
+  const label = document.getElementById('reading-progress-label') as HTMLElement | null;
+  const meta = document.getElementById('post-meta');
+  const article = document.querySelector('.prose-post') as HTMLElement | null;
+
+  if (container && fill && label && meta && article) {
+    // Respect prefers-reduced-motion
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      fill.style.transition = 'none';
+    }
+
+    // Initially hidden
+    container.style.opacity = '0';
+
+    const onScroll = () => {
+      const metaBottom = meta.getBoundingClientRect().bottom;
+      const articleTop = article.getBoundingClientRect().top + window.scrollY;
+      const articleBottom = articleTop + article.offsetHeight;
+      const scrolled = window.scrollY + window.innerHeight;
+      const total = articleBottom - articleTop;
+      const progress = Math.min(100, Math.max(0, ((window.scrollY - articleTop) / (total - window.innerHeight)) * 100));
+
+      // Show/hide based on scroll past meta block
+      const pastThreshold = metaBottom < 0;
+      container.style.opacity = pastThreshold ? '1' : '0';
+      if (!prefersReduced) {
+        container.style.transition = 'opacity 0.2s ease';
+      }
+
+      fill.style.width = `${progress}%`;
+      label.textContent = `${Math.round(progress)}%`;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>

@@ -8,11 +8,19 @@ import '@fontsource/fraunces/700.css';
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
+  ogType?: string;
+  ogUrl?: string;
+  publishedTime?: string;
 }
 
 const {
   title = 'Iain Morton — Head of Engineering · CTO',
   description = 'Senior engineering leader with 15+ years of experience in cloud infrastructure, data platform, and high-performing team building.',
+  ogImage = 'https://iainmorton.me/og/default.png',
+  ogType = 'website',
+  ogUrl = 'https://iainmorton.me',
+  publishedTime,
 } = Astro.props;
 ---
 
@@ -27,8 +35,12 @@ const {
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://iainmorton.me" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:image" content={ogImage} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
 
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

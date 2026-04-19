@@ -1,0 +1,69 @@
+---
+// src/components/LatestPosts.astro
+import BlogCard from './BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const includeDrafts = import.meta.env.INCLUDE_CONTENT_DRAFTS === 'true';
+
+const allPosts = await getCollection('blogs', ({ data }) => {
+  return includeDrafts ? true : !data.draft;
+});
+
+const posts = allPosts
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 3);
+
+const WORDS_PER_MINUTE = 200;
+function readingTime(body: string): number {
+  const words = body.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
+}
+---
+
+{posts.length > 0 && (
+  <section
+    id="blog"
+    class="py-24 md:py-32 px-6 md:px-12 lg:px-24 bg-surface"
+    aria-labelledby="blog-section-heading"
+  >
+    <div class="max-w-6xl mx-auto">
+
+      <p class="reveal font-mono text-accent text-sm mb-3 tracking-widest uppercase">
+        05 / Writing
+      </p>
+
+      <div class="reveal reveal-delay-1 flex items-end justify-between mb-12 flex-wrap gap-4">
+        <h2
+          id="blog-section-heading"
+          class="font-display text-3xl md:text-5xl font-bold text-text"
+        >
+          Read my blog
+        </h2>
+        <a
+          href="/blog"
+          class="font-mono text-sm text-accent border border-accent rounded-sm px-4 py-2 hover:bg-accent hover:text-background transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface"
+        >
+          All posts →
+        </a>
+      </div>
+
+      <div class="reveal reveal-delay-2 w-16 h-px bg-accent mb-16"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post, i) => (
+          <div class={`reveal reveal-delay-${Math.min(i + 2, 5)}`}>
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              tags={post.data.tags}
+              slug={post.id}
+              readingTime={readingTime(post.body ?? '')}
+            />
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </section>
+)}

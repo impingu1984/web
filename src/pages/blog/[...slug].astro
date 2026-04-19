@@ -1,0 +1,38 @@
+---
+// src/pages/blog/[...slug].astro
+import BlogPost from '../../layouts/BlogPost.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const includeDrafts = import.meta.env.INCLUDE_CONTENT_DRAFTS === 'true';
+
+  const posts = await getCollection('blogs', ({ data }) => {
+    return includeDrafts ? true : !data.draft;
+  });
+
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const WORDS_PER_MINUTE = 200;
+const wordCount = post.body?.trim().split(/\s+/).length ?? 0;
+const readingTime = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
+---
+
+<BlogPost
+  title={post.data.title}
+  description={post.data.description}
+  date={post.data.date}
+  tags={post.data.tags}
+  slug={post.id}
+  readingTime={readingTime}
+  headings={headings}
+  toc={post.data.toc}
+>
+  <Content />
+</BlogPost>
