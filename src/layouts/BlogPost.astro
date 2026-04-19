@@ -45,21 +45,12 @@ const ogImage = `https://iainmorton.me/og/${slug}.png`;
   <!-- Reading progress bar -->
   <div
     id="reading-progress-container"
-    class="fixed left-0 right-0 z-40"
-    style="top: 57px;"
+    class="progress-container fixed left-0 right-0 z-40"
     aria-hidden="true"
   >
-    <div id="reading-progress-track" class="w-full h-1" style="background: #1a1a1a;">
-      <div
-        id="reading-progress-fill"
-        class="h-full relative"
-        style="background: #00d4ff; width: 0%; transition: width 0.1s linear;"
-      >
-        <span
-          id="reading-progress-label"
-          class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pl-1 font-mono text-xs"
-          style="color: #00d4ff; font-size: 10px; line-height: 1;"
-        >0%</span>
+    <div class="progress-track w-full h-1">
+      <div id="reading-progress-fill" class="progress-fill h-full relative">
+        <span id="reading-progress-label" class="progress-label font-mono">0%</span>
       </div>
     </div>
   </div>
@@ -143,6 +134,30 @@ const ogImage = `https://iainmorton.me/og/${slug}.png`;
 </Base>
 
 <style is:global>
+  /* Progress bar */
+  .progress-container {
+    top: 57px;
+    opacity: 0;
+  }
+  .progress-track {
+    background: #1a1a1a;
+  }
+  .progress-fill {
+    background: #00d4ff;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  .progress-label {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+    padding-left: 4px;
+    color: #00d4ff;
+    font-size: 10px;
+    line-height: 1;
+  }
+
   /* Prose styles for blog post body */
   .prose-post {
     color: var(--color-text-muted, #8899aa);
