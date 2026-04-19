@@ -138,13 +138,21 @@ const ogImage = `https://iainmorton.me/og/${slug}.png`;
   .progress-container {
     top: 57px;
     opacity: 0;
+    pointer-events: none;
+  }
+  .progress-container.progress-visible {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  .progress-container.progress-reduced {
+    transition: none;
   }
   .progress-track {
     background: #1a1a1a;
   }
   .progress-fill {
     background: #00d4ff;
-    width: 0%;
+    width: var(--progress, 0%);
     transition: width 0.1s linear;
   }
   .progress-label {
@@ -262,12 +270,9 @@ const ogImage = `https://iainmorton.me/og/${slug}.png`;
 
   if (container && fill && label && meta && article) {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!prefersReduced) {
-      container.style.transition = 'opacity 0.2s ease';
+    if (prefersReduced) {
+      container.classList.add('progress-reduced');
     }
-
-    // Initially hidden
-    container.style.opacity = '0';
 
     const onScroll = () => {
       const metaRect = meta.getBoundingClientRect();
@@ -279,11 +284,12 @@ const ogImage = `https://iainmorton.me/og/${slug}.png`;
         ? Math.min(100, Math.max(0, (scrolled / scrollable) * 100))
         : 100;
 
-      // Show once meta block starts scrolling off screen
+      // Toggle visibility via class — avoids inline style CSP issue
       const pastThreshold = metaRect.bottom < 80;
-      container.style.opacity = pastThreshold ? '1' : '0';
+      container.classList.toggle('progress-visible', pastThreshold);
 
-      fill.style.width = `${progress}%`;
+      // Set progress via CSS custom property on container
+      container.style.setProperty('--progress', `${progress}%`);
       label.textContent = `${Math.round(progress)}%`;
     };
 
