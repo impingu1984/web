@@ -203,7 +203,7 @@ git push
 2. Select **Connect to Git** → choose GitHub → select this repo (`impingu1984/web`)
 3. Build settings:
    - **Framework preset:** Astro
-   - **Build command:** `npm run build`
+   - **Build command:** `npm install && npm run build`
    - **Build output directory:** `dist`
    - **Root directory:** `/` (leave blank)
 4. **Environment variables** — add:
