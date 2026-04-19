@@ -1,12 +1,12 @@
 # Cloudflare Pages _headers file
-# Delivers all security headers except Content-Security-Policy,
-# which is handled per-request by functions/_middleware.js (nonce injection).
+# Delivers all security headers except Content-Security-Policy and
+# Strict-Transport-Security, which are both handled per-request by
+# functions/_middleware.js (nonce injection + HSTS on every response).
 #
 # Target: Mozilla HTTP Observatory A+ (≥ 115 points)
 
-# HTML pages — all security headers
+# HTML pages — security headers (HSTS and CSP handled by middleware)
 /*
-  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

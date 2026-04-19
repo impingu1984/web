@@ -40,9 +40,12 @@ const {
     <meta property="og:image" content={ogImage} />
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
     <title>{title}</title>
+    <link rel="canonical" href={ogUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-background text-text font-body antialiased">
@@ -106,18 +109,6 @@ const {
     }
   }
 
-  /* CSS custom properties for use outside Tailwind utilities */
-  :root {
-    --color-accent: #00d4ff;
-    --color-accent-dim: #00a8cc;
-    --color-bg: #0a0e13;
-    --color-surface: #111820;
-    --color-surface-alt: #1a2230;
-    --color-text: #e2e8f0;
-    --color-text-muted: #8899aa;
-    --color-border: #1e2d3d;
-  }
-
   /* Scroll reveal */
   .reveal {
     opacity: 0;
@@ -143,7 +134,7 @@ const {
 
   /* Smooth scrollbar */
   html {
-    scrollbar-color: var(--color-border) var(--color-bg);
+    scrollbar-color: var(--color-border) var(--color-background);
     scrollbar-width: thin;
   }
 

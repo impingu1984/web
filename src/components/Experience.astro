@@ -29,11 +29,13 @@ import { experience } from '../data/cv';
         <li
           class={`reveal reveal-delay-${Math.min(i + 1, 5)} relative pl-8 pb-16 last:pb-0`}
         >
-          <!-- Timeline line -->
-          <div
-            class="absolute left-0 top-0 bottom-0 w-px bg-border last:hidden"
-            aria-hidden="true"
-          ></div>
+          <!-- Timeline line — hidden on final entry -->
+          {i < experience.length - 1 && (
+            <div
+              class="absolute left-0 top-0 bottom-0 w-px bg-border"
+              aria-hidden="true"
+            ></div>
+          )}
 
           <!-- Timeline dot -->
           <div
@@ -47,7 +49,7 @@ import { experience } from '../data/cv';
               <h3 class="font-display text-xl md:text-2xl font-bold text-text">
                 {role.title}
               </h3>
-              <time class="font-mono text-accent text-sm" datetime={role.period}>
+              <time class="font-mono text-accent text-sm" datetime={role.dateStart}>
                 {role.period}
               </time>
             </div>

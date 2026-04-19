@@ -1,7 +1,8 @@
 ---
 // src/components/LatestPosts.astro
 import BlogCard from './BlogCard.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { readingTime } from '../utils/readingTime';
 
 const includeDrafts = import.meta.env.INCLUDE_CONTENT_DRAFTS === 'true';
 
@@ -12,17 +13,6 @@ const allPosts = await getCollection('blogs', ({ data }) => {
 const posts = allPosts
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .slice(0, 3);
-
-const WORDS_PER_MINUTE = 200;
-function readingTime(post: any): number {
-  try {
-    const text = post.body ?? '';
-    const words = text.trim().split(/\s+/).filter(Boolean).length;
-    return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
-  } catch {
-    return 1;
-  }
-}
 ---
 
 <section
@@ -65,7 +55,7 @@ function readingTime(post: any): number {
               date={post.data.date}
               tags={post.data.tags}
               slug={post.id}
-              readingTime={readingTime(post)}
+              readingTime={readingTime(post.body ?? '')}
             />
           </div>
         ))}

@@ -116,7 +116,7 @@ function defaultLayout() {
       style: {
         width: 1200,
         height: 630,
-        background: '#0a0a0a',
+        background: '#0a0e13',
         display: 'flex',
         alignItems: 'center',
         padding: '0 80px',
@@ -179,7 +179,7 @@ function postLayout(title, date, readingTime) {
       style: {
         width: 1200,
         height: 630,
-        background: '#0a0a0a',
+        background: '#0a0e13',
         display: 'flex',
         alignItems: 'center',
         padding: '0 80px',
