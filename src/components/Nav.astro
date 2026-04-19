@@ -2,11 +2,18 @@
 // src/components/Nav.astro
 import { meta } from '../data/cv';
 
+const currentPath = Astro.url.pathname;
+const isHomepage = currentPath === '/';
+
+// Anchor links need to be absolute when not on homepage
+const anchorPrefix = isHomepage ? '' : '/';
+
 const navLinks = [
-  { href: '#about', label: 'Profile' },
-  { href: '#skills', label: 'Skills' },
-  { href: '#experience', label: 'Experience' },
-  { href: '#contact', label: 'Contact' },
+  { href: `${anchorPrefix}#about`, label: 'Profile' },
+  { href: `${anchorPrefix}#skills`, label: 'Skills' },
+  { href: `${anchorPrefix}#experience`, label: 'Experience' },
+  { href: `${anchorPrefix}#contact`, label: 'Contact' },
+  { href: '/blog', label: 'Blog' },
 ];
 ---
 
@@ -16,7 +23,7 @@ const navLinks = [
 >
   <!-- Wordmark -->
   <a
-    href="#hero"
+    href={`${anchorPrefix}#hero`}
     class="font-mono text-accent text-sm font-bold tracking-widest hover:text-text transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent rounded-sm"
     aria-label="Back to top"
   >

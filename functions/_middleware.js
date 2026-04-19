@@ -27,12 +27,15 @@ export async function onRequest(context) {
 
   // Build strict CSP with nonce
   // font-src includes data: because @fontsource embeds font files as data URIs in CSS
+  // frame-src allows YouTube embeds via the <YouTube> component
+  // img-src allows any HTTPS-hosted image/GIF for use in blog posts
   const csp = [
     "default-src 'none'",
     `script-src 'self' 'nonce-${nonce}'`,
     `style-src 'self' 'nonce-${nonce}'`,
     "font-src 'self' data:",
-    "img-src 'self' data:",
+    "img-src 'self' data: https:",
+    "frame-src https://www.youtube.com",
     "connect-src 'self'",
     "form-action 'none'",
     "base-uri 'none'",
@@ -42,6 +45,7 @@ export async function onRequest(context) {
 
   const newHeaders = new Headers(response.headers);
   newHeaders.set('Content-Security-Policy', csp);
+  newHeaders.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
 
   return new Response(body, {
     status: response.status,

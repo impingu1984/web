@@ -1,9 +1,15 @@
+# OG images — generated at build time, not committed (except default)
+public/og/*.png
+public/og/.*.hash
+!public/og/default.png
+
 # Build output
 dist/
 .astro/
 
 # Dependencies
 node_modules/
+package-lock.json
 
 # Environment & secrets (never commit)
 .env
