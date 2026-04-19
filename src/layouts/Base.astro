@@ -160,4 +160,36 @@ const {
   .hero-glow {
     background: radial-gradient(circle, #00d4ff 0%, transparent 70%);
   }
+
+  /* Reading progress bar — defined here so nonce is guaranteed */
+  .progress-container {
+    top: 57px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .progress-container.progress-visible {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  .progress-container.progress-reduced {
+    transition: none;
+  }
+  .progress-track {
+    background: #1a1a1a;
+  }
+  .progress-fill {
+    background: #00d4ff;
+    width: var(--progress, 0%);
+    transition: width 0.1s linear;
+  }
+  .progress-label {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+    padding-left: 4px;
+    color: #00d4ff;
+    font-size: 10px;
+    line-height: 1;
+  }
 </style>
