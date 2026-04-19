@@ -1,6 +1,7 @@
 ---
 // src/components/BlogList.astro
 import BlogCard from './BlogCard.astro';
+import { readingTime } from '../utils/readingTime';
 
 interface Post {
   slug: string;
@@ -19,13 +20,6 @@ interface Props {
 }
 
 const { posts } = Astro.props;
-
-const WORDS_PER_MINUTE = 200;
-
-function readingTime(body: string): number {
-  const words = body.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
-}
 ---
 
 <div id="blog-list">

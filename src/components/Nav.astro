@@ -75,7 +75,7 @@ const navLinks = [
     {navLinks.map((link) => (
       <a
         href={link.href}
-        class="font-mono text-text-muted text-sm px-6 py-4 border-b border-border hover:text-accent hover:bg-surface transition-colors duration-200"
+        class="font-mono text-text-muted text-sm px-6 py-4 border-b border-border hover:text-accent hover:bg-surface transition-colors duration-200 nav-mobile-link"
       >
         {link.label}
       </a>
@@ -91,3 +91,24 @@ const navLinks = [
     </a>
   </div>
 </nav>
+
+<script>
+  const toggle = document.getElementById('mobile-nav-toggle') as HTMLInputElement | null;
+  const label = document.querySelector('label[for="mobile-nav-toggle"]');
+
+  // Close menu when any nav link is clicked
+  document.querySelectorAll('.nav-mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      if (toggle) toggle.checked = false;
+      if (label) label.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Keep aria-expanded in sync with checkbox state
+  if (toggle && label) {
+    toggle.addEventListener('change', () => {
+      label.setAttribute('aria-expanded', toggle.checked ? 'true' : 'false');
+    });
+    label.setAttribute('aria-expanded', 'false');
+  }
+</script>

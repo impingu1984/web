@@ -20,13 +20,13 @@ export const meta = {
 
 export const hero = {
   summary:
-    'Engineering leader with 15+ years of experience, currently heading an 18-person organisation spanning Web, Mobile, Backend, DevOps, Data and QA. Proven track record of reducing web lead times by 75%, cutting mobile release cycles from quarterly to 4–6 weeks, and delivering £180,000 in annual platform savings. Equally comfortable designing event-driven cloud architectures, directing ISO 27001 audits, and building the organisational structures that let high-performing teams thrive.',
+    'Engineering leader with 15+ years of experience, currently heading an 18-person organisation spanning Web, Mobile, Backend, DevOps, Data and QA. Proven track record of reducing lead times, cutting release cycles, and delivering platform savings. Equally comfortable designing event-driven cloud architectures, directing ISO 27001 audits, and building the organisational structures that let high-performing teams thrive.',
 };
 
 export const about = {
   paragraphs: [
     'I am an engineering leader with over 15 years of experience spanning individual contribution, technical leadership, and executive engineering management. I currently head an 18-person engineering organisation structured across Web, Mobile, Backend, DevOps, Data and QA disciplines — with full accountability for engineering strategy, platform architecture, SDLC governance, cost management, and talent development.',
-    'My career has progressed from BI and data engineering into platform and infrastructure leadership, giving me unusually broad technical depth across the full stack: from data warehouse design and event-driven cloud architecture through to CI/CD pipeline delivery and security compliance. I have led ISO 27001 (2017 and 2022 standard) and PCI DSS programmes, driven a 75% reduction in web deployment lead time, and delivered seven-figure infrastructure cost savings.',
+    'My career has progressed from BI and data engineering into platform and infrastructure leadership, giving me unusually broad technical depth across the full stack: from data warehouse design and event-driven cloud architecture through to CI/CD pipeline delivery and security compliance. I have led ISO 27001 and PCI DSS programmes, driven a 75% reduction in web deployment lead time, and delivered seven-figure infrastructure cost savings.',
     'I am motivated by building engineering cultures where autonomy, outcome-focus, and craft are the defaults — not the exceptions. I am targeting Head of Engineering or CTO roles where technical depth and strategic leadership can be applied in combination.',
   ],
 };
@@ -42,10 +42,8 @@ export const skillClusters: SkillCluster[] = [
     skills: [
       'Org Design',
       'SDLC Transformation',
-      'DORA Metrics',
       'Team Building',
       'Stakeholder Management',
-      'Release Management',
       'Roadmap Ownership',
     ],
   },
@@ -98,7 +96,7 @@ export const skillClusters: SkillCluster[] = [
   {
     name: 'Security',
     skills: [
-      'ISO 27001 (2017 & 2022)',
+      'ISO 27001',
       'PCI DSS',
       'Pen Test Remediation',
       'GitHub Advanced Security',
@@ -137,6 +135,7 @@ export const skillClusters: SkillCluster[] = [
 export type Role = {
   title: string;
   period: string;
+  dateStart: string; // ISO 8601 date for machine-readable datetime attribute
   company: string;
   bullets: string[];
 };
@@ -144,21 +143,23 @@ export type Role = {
 export const experience: Role[] = [
   {
     title: 'Head of Engineering',
-    period: 'Jun 2025 – Present',
+    period: 'Apr 2025 – Present',
+    dateStart: '2025-04-01',
     company: 'UK Membership & Loyalty Technology Business',
     bullets: [
       'Promoted to lead all engineering disciplines across an 18-person organisation (4 direct reports, 14 ICs) structured into Web, Mobile, Backend, DevOps, Data and QA teams — with full accountability for engineering strategy, SDLC governance, platform architecture, cost management, and talent development.',
       'Redesigned the engineering org structure from feature-based vertical teams to component teams, eliminating chronic context-switching and enabling a standardised SDLC across all disciplines.',
-      'Reduced web deployment lead time by 75% (8 weeks → 2 weeks) and cut batch size from 15 items to near-1 by introducing DORA metrics, decoupling deployment from release, and implementing feature flagging via Unleash.',
+      'Reduced web deployment lead time by 75% (8 weeks → 2 weeks) and cut batch size from 15 items to near 1 by introducing DORA metrics, decoupling deployment from release, and implementing feature flagging via Unleash.',
       'Accelerated mobile release cadence from quarterly to every 4–6 weeks, reducing lead time from 3 months+ to ~8 weeks through process redesign and improved CI/CD practices.',
       'Delivered £180k/year platform saving by migrating four brand websites from a costly, over-engineered CMS setup (£300k/year) to a lean headless CMS + CloudFront architecture (~£120k/year).',
-      'Saved $120k/year in AWS costs (~17% reduction from $720k to $600k) through rightsizing, savings plans, EKS node optimisation, database consolidation, and a strategic shift toward serverless compute.',
-      'Retained and upgraded ISO 27001 certification from the 2017 to the 2022 standard, directing introduction of GitHub Advanced Security for SAST and secrets scanning, and reducing penetration test vulnerabilities to a single legacy system across the estate.',
+      'Saved $120k/year in AWS costs (~17% reduction) through rightsizing, savings plans, EKS node optimisation, database consolidation, and a strategic shift toward serverless compute.',
+      'Retained and upgraded ISO 27001 certification, directing introduction of GitHub Advanced Security for SAST and secrets scanning, and reducing penetration test vulnerabilities to a single legacy system across the estate.',
     ],
   },
   {
     title: 'DevOps Manager',
-    period: 'Jan 2023 – Jun 2025',
+    period: 'Jan 2023 – Apr 2025',
+    dateStart: '2023-01-01',
     company: 'UK Membership & Loyalty Technology Business',
     bullets: [
       'Built the DevOps function from scratch — replaced an underperforming third-party managed service with a three-engineer in-house team.',
@@ -170,6 +171,7 @@ export const experience: Role[] = [
   {
     title: 'Lead Data Engineer',
     period: 'Sep 2021 – Dec 2022',
+    dateStart: '2021-09-01',
     company: 'UK Membership & Loyalty Technology Business',
     bullets: [
       "Architected and built the organisation's data warehouse from the ground up on a Fivetran / dbt / Snowflake / Airflow stack, implementing Lambda architecture for in-day incremental processing alongside overnight batch loads.",
@@ -181,6 +183,7 @@ export const experience: Role[] = [
   {
     title: 'Data & Insight Lead',
     period: 'Apr 2020 – Sep 2021',
+    dateStart: '2020-04-01',
     company: 'UK Membership & Loyalty Technology Business',
     bullets: [
       'Led a team of four analysts serving the entire business, integrating offline and digital data to produce commercial insight.',
@@ -190,6 +193,7 @@ export const experience: Role[] = [
   {
     title: 'Senior BI Analyst',
     period: 'Nov 2018 – Apr 2020',
+    dateStart: '2018-11-01',
     company: 'UK Membership & Loyalty Technology Business',
     bullets: [
       'Inherited a legacy reporting estate and modernised it using Alteryx for workflow automation and Power BI for self-service dashboards.',
@@ -199,6 +203,7 @@ export const experience: Role[] = [
   {
     title: 'Management Information Manager',
     period: 'Jun 2010 – Nov 2018',
+    dateStart: '2010-06-01',
     company: 'Government-Contracted Training & Skills Provider',
     bullets: [
       'Managed all data, reporting and MI functions for a large Government-contracted training provider, producing compliance datasets and analysis for DWP, ESFA and Ofsted.',
