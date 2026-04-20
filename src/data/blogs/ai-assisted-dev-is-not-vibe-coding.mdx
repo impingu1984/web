@@ -9,23 +9,213 @@ draft: true
 
 import YouTube from '../../components/YouTube.astro';
 
-Welcome to me first blog post!
+Welcome to my first blog post!
 
 The whole reason you're even reading this is because I decided to dip my toes into using AI to create this very site. The main purpose to understand the following points:
 
-* Is it really that "good"?
-* Can it replace software engineers
-* Does it really make things quicker
-* What are the potential pitfalls
+- Is it really that "good"?
+- Can it replace software engineers
+- Does it really make things quicker
+- What are the potential pitfalls
 
-I'd being chatting to Gemini about the potential of doing this project and got a rough idea of what I wanted to achieve, but the actual AI I used for this was Anthropic's current darling Claude, specifically the model Sonnet 4.6, I'd been warned that Opus is very token hungry, and Sonnet is good enough. So I get a Claude Pro subscription for £18 per month and dived in.
+I'd being chatting to Gemini about the potential of doing this project and got a rough idea of what I wanted to achieve, So I got a Claude subscription and dived in.
 
 ![A kid sat at a computer, who nods and puts his thumb up](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW5jZ25ib3BrZHlhcXRnNW9pdXB4MzBiY3BkMjlqd2tpbjB1a3U1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/m2Q7FEc0bEr4I/giphy.gif)
 
 ## Design to fail, don't design to succeed
 
-So initially I didn't do anything with Claude to actually build something, I main played around with get Claude COde agents setup in docker containers with MCP servers in seperate conatiners, mainly to uderstand how you could automate a SDLC (Software Development Lifecycle) with AI agents (that will probably be a whole different blog post sometime in the future). But then once I was satisifed I knew enough, it was time to build something.
+So initially I didn't do anything with Claude to actually build something, I main played around with get Claude Code agents setup in docker containers with MCP servers in seperate conatiners, mainly to uderstand how you could automate a SDLC (Software Development Lifecycle) with AI agents (that will probably be a whole different blog post sometime in the future). But then once I was satisifed I knew enough, it was time to build something.
 
-But how would I do this? I didn't want to just prompt the Claude `Build me a website please` and hope I would get something useful
+But how would I do this? I didn't want to just prompt the Claude `Build me a website please` and hope I would get something useful, this video sums it up really well.
 
-<YouTube id="eZxeWoMEHQQ" title="Vibe coding is gambling" />
+<YouTube id="eZxeWoMEHQQ" title="A youtube short titled - Vibe coding is gambling" />
+
+So we're not doing that. But what would I normally do?
+
+Well as a fleshy human we'd have a design phase, where we'd gather requirements, converse with stakeholders, produce design documentation, decide how we'd build and test it and list what acceptable criteria is required before we put a hand on a keyboard to write any code. Now for small personal website that is probably overkill, but I believe process is important, so I did a design phase... with AI.
+
+### How to train your robot
+
+Now you can supply context to an AI ageent in Claude code using a `Claude.md` file. But I'd decided I just wanted to get cracking, it was Friday evening, I had a glass of red wine, and time to kill. So I decided to create a Claude project. This is because you can have multiple chats in a project, but supple context to any of these chats in the form of some custom instructions and files that you can upload that can be images, documents, whatever. So I created (With help from Gemini) a project called `Tech Spec Writer` and added the following custom instructions in it.
+
+```
+You are an expert Technical Architect and Business Analyst specializing in spec-driven development. Your goal is to help me write, refine, and maintain detailed specifications (spec.md) before any code is written.
+
+Drafting: Create structured specs including User Stories, Functional Requirements, Technical Constraints, and Acceptance Criteria.
+
+Clarifying: After reviewing my initial ideas, ask 5-8 probing questions to uncover edge cases, missing security considerations, or ambiguities.
+
+Standardizing: Ensure all specs adhere to a consistent structure.
+
+Verification: Define how each requirement can be verified (e.g., specific test commands).
+
+Always prioritize a spec-first approach—do not start implementing code until the spec is finalized.
+
+Final Specs.md output by you should follow this structure:
+
+    Title & Purpose: What are we building?
+
+    Requirements: Specific, bullet-pointed functional requirements.
+
+    Technical Constraints: Tech stack, security rules, performance metrics.
+
+    Verification/Acceptance Criteria: Exactly how to test that the spec is met (e.g., pnpm test, "User can login in under 2s").
+```
+I'd prepared some content already by creating a Career caoch project in a simular way and had a new CV from that after I asked the career coach to interview me from my old CV to create a new better one.
+
+So with my new CV I asked my Spec writer this prompt.
+
+```
+I want to build a personal website. It is largely to showcase myself by putting a website on my CV.
+
+It needs to be easy to maintain, easy to deploy, completely free to run.
+
+It must be deployable from a github repo.
+```
+
+And it immediately asked me clarifying questions
+
+>I love the idea — a personal site that actually works hard for you on a CV is a great asset. Before I draft the spec, I have some probing questions to make sure we get this right first time.While you answer those, here are the deeper questions I'll need you to think about too — answer them however you like (free text is fine):
+>
+>1. **Domain name** — do you have one, want to buy one, or are you happy with a free subdomain (e.g. `yourname.github.io`)?
+2. **Blog** — if you want one, will you write in Markdown, or do you want a CMS (like Netlify CMS or Contentlayer)?
+3. **Contact form** — since the stack must be free, a backend-less form service (Formspree, Web3Forms) is the likely route. Any preference, or is email-only fine?
+4. **Design** — do you have a rough aesthetic in mind (minimal/clean, bold/creative, dark mode, etc.) or a site you admire?
+5. **Analytics** — do you want to track visitors? (Fathom, Plausible, or plain Google Analytics — all have free tiers.)
+>
+> Take your time — the more detail here, the tighter the spec. 🎯
+
+Some pretty good opening questions
+
+And so this continued, asking me about the aesthetics, do I want a contact form, what about a domain name?, How often would I deploy to the site. I gave it my new CV and said heres some content, I told not include any persoanl details such as email or phone number. And then it just wrote up a full detailed spec file, with some open questions.
+
+And we went back and forth. I decided to add some security requirements
+
+```
+One thing i'd forgot. Can we ensure that all security headers including a CSP are present and correctely configured. We can validate this by using the Mozilla HTTP Observatory Report and aim for a A+ score.
+
+Can you update the specs please
+```
+
+And it then went through a whole process of figuring the best way to generate nonces for inline scripts and inline styles, as it had already recommended Cloudflare Pages it decided the best way was Option 2 (because it came up with 3 options) A cloudflare function to handle this.
+
+After some back and forth and serveral iterations we had an approved spec document which I signed off.
+
+## Ready for dev?
+
+So with specs in hand (Or rather stored on NAND), lets assign a dev to it.
+
+New project, new custom instructions (again thanks Gemini).
+
+```
+Role
+
+You are an expert software engineer. You specialize in building, debugging, refactoring, and documenting complex software systems using best practices.
+
+Core Behaviors
+
+    Analyze First: Read the spec.md to understand context, architecture, and coding styles.
+    TDD Focus: Write tests before implementing features. Ensure tests pass.
+    Use Tools: Use ls, grep, cat, and read file tools to explore. Use bash to run tests and build processes. Do not guess file content.
+    Modular Code: Favor small, reusable functions and classes. Follow DRY (Don’t Repeat Yourself) principles.
+    Security & Safety: Never expose API keys. Validate inputs. Prefer safe operations.
+    Concise Communication: Provide concise, technical updates. Focus on what was done and why.
+
+Workflow
+
+    Understand: Parse the user request. Ask clarifying questions only if necessary.
+    Plan: Briefly outline the steps (e.g., “I will modify X, run tests, then update Y”).
+    Execute: Implement changes step-by-step.
+    Verify: Run tests. If tests fail, fix them immediately.
+    Commit: Suggest a semantic commit message.
+```
+
+And away we prompt
+
+```
+I have a final spec called spec.md in the web repo. Use thhis to build the website as required. Access me where you need help to complete steps, like setup of Cloudflare account for example.
+
+Ask any clarifying questions.
+
+The build will be put back to the spec writer to validate it meets the spec
+```
+
+And after clarifying questions, some concenrs raised, concerns fixed. I had a tar archive to upload to the Repo. And instrtions on the Cloadflare Pages setup required.
+
+I followed them to the tee and... `Failed: error occurred while running build command`
+
+No worries, lets give the AI the build log and see what occurs. It diagnosed the issues, and gave me a new archive. ANd asked me to commit the changes with a diff provided.
+
+And the build was successful!
+
+![The office - with Steve Carell spraying champagne on a woman](https://media1.tenor.com/m/GMOvEqEbrGwAAAAC/the-office-steve-carell.gif)
+
+From spec to done in 40 mins... incredible... wait.. I wouldn't allow this normally, where's the QA.
+
+### Let's clean out the slop bucket
+
+Bugs where present. None the CSS was loading. I report this back to the Dev. And I quickly assumed the role of QA myself. But we started working down the acceptence criteria confirming what worked, and what didn't. New archives, code committed by me, builds happened we verified and checked, we discussed some minor deviations and agreed them until we had it all boxed off.
+
+We were a pretty good team, but I realised that the gates in a normal development process (Code review and QA) where me. I was the one preventing bad code or testing acceptence criteria. I was the gatekeeper, and I was the one accounatble for it.
+
+1 hours 40 mins from the final spec. And asking for some handover notes to go back to Tech Spec Writer, I went to demo the results with th e original spec writer.
+
+The spec writer read the handover notes, looked at the site, created a extensive summary asked me to run some PageSpeed benchmarks (Performance 100 on Mobile and Desktop exceeding spec) and found accessability bug.
+
+Written up a Bug report, back to the Dev, they fix it, we add in post deploy checks to check for regressions in readme.md, we could automate this in future. We even hit A+ on HTTP Obseratory.
+
+Job done!.. but was that a secure dev process? We need external verification. Better get a PEN tester.
+
+## You're absolutely right!
+
+New project, new custom instructions
+
+```
+You are an expert security researcher conducting authorized testing of a web application at a URL I give. Your goal is to identify OWASP Top 10 vulnerabilities, and scan the repo I provide. 
+
+Follow a structured methodology: 1) Reconnaissance, 2) Vulnerability Assessment, 3) Exploitation, 4) Reporting. Document all methodology and findings. Always ask for permission before running any destructive or invasive tests.
+```
+
+The PEN tester was given the URL and the repo. An it found things. OSINT over-exposure, asking we to check and confirm no secrets had be pushed to the repo as it was public, Told me to enable dependancy scanning, Tech stack disclosure in footer, some reverse tabnapping, no robots.txt or sitemap. Also suggested that we never consider a contact form or simply put an email address on the site without reCAPTCHA.
+
+It also looked at the `package.json` and noted many packages where old of date. Despite me saying in the Spec use the latest LTS versions always, the Dev didn't.
+
+But thats fine we now have a report. Tech spec writer, made a spec based upon it and another dev cycle begins, Breaking changes so this will be v2.0.0. 
+
+Following a well understood process and using AI as employees in that process is delivering results.
+
+I even stated we specced latest LTS versions and got the classic response `You're absolutely right!`
+
+![You're absolutely right](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzA3uRriXvK_0FGFZBMackgSYz72bvRBdRNw&s)
+
+But in fleshy human dev cycles, things get missed. But that why we have processes to catch those things, and we are catching those things now.
+
+So we work through the issues, we review, we QA, we validate and we release v2.0.0
+
+### Here we go again
+
+And following that process, it's time for a new feature. A blog (the one you're reading now!) and v2.1.0 is released the next day. We actually had a lot of bugs in that dev cycle, but i'd implemented a preview site on a preview branch at this point so just worked away at it in the lower enviroment.
+
+And after about 12 hours of time invested. We have this that you're reading now.
+
+## So this is vibe coding?
+
+Well no it's not vibe coding, I realised that vibe coding is discarding all the processes and checks and balances we've implemented as best practice into the the bin because the AI will sort it.
+
+**No it won't!!**
+
+This project overall turned out better than I expected, but it still required my knowledge, my process for that good outcome, I moved from writing code to directing and leading an AI to write code following a development lifecycle, that's not vibe coding.
+
+But it is a whole new way of working and maybe one day writing code manually will be a thing of the past. And we're even discuss new development lifecycles using AI (AI-DLC) [like this blog post by AWS](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/)
+
+People are figuring this out with things Product Requirement Documents (PRDs) being created to generate Specs, these are new process, based upon the knowledge of the old ones apply the same level of rigour.
+
+If you do that AI will offer genuine productitity improvements.
+
+If you think it can just replace peoples knowledge and process, it'll probably delete you're prod database.
+
+Don't be this guy
+
+<YouTube id="t6wKf5ZmK7g" title="Software Engineer vs CEO" />
+
+Start to embrace it so you can get your technical teams to embrace it. It's good, and can be great, but it's a tool for your tech team, not a magic wand to get rid of them and profit. That's vibe coding. 
