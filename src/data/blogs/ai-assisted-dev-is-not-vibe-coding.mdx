@@ -1,38 +1,230 @@
 ---
 title: "AI Assisted Dev != Vibe coding"
 description: "My lessons using AI to assist the development of this entire site"
-date: 2026-04-19
-tags: ["AI", "Vibe Coding", "AI-DLC", "AI Assisted Development"]
+date: 2026-04-21
+tags: ["AI", "Vibe Coding", "AI Development Lifecycle", "Spec-Driven Development with AI", "AI Assisted Development"]
 toc: true
 draft: true
 ---
 
 import YouTube from '../../components/YouTube.astro';
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate. Shipped it 🚀 — three weeks ahead of schedule.
+## I didn't vibe code this. Here's what I actually did.
 
-## Section One
+I built this site using AI. Not vibes, not blind prompting, - actual engineering process, with AI doing the heavy lifting. Here's how it went.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+The main questions I wanted to answer:
 
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+- Is it really that good?
+- Can it replace software engineers?
+- Does it actually make things quicker?
+- What are the potential pitfalls?
 
-<YouTube id="aqz-KE-bpKQ" title="Big Buck Bunny — Creative Commons animated film used for QA testing" />
+I'd been chatting to Gemini about the potential of doing this project and got a rough idea of what I wanted to achieve. So I got a Claude subscription and jumped in.
 
-## Section Two
+![A kid sat at a computer, who nods and puts his thumb up](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW5jZ25ib3BrZHlhcXRnNW9pdXB4MzBiY3BkMjlqd2tpbjB1a3U1ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/m2Q7FEc0bEr4I/giphy.gif)
 
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit.
+## Design to Fail, Don't Design to Succeed
 
-Ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam quis nostrum exercitationem ullam corporis suscipit laboriosam nisi ut aliquid ex ea commodi consequatur. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.
+Design to fail means building a process that catches failures early - before they reach production. The opposite of vibe coding, in other words.
 
-![Animated loop used for GIF rendering QA](https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif)
+Initially, I didn't use Claude to build anything. I spent time getting Claude Code agents set up in Docker containers with MCP servers in separate containers - mainly to understand how you could automate a software development lifecycle with AI agents. (That's probably a whole separate blog post.)
 
-### Subsection
+But once I was satisfied I knew enough, it was time to build something.
 
-At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.
+The question was: how? I didn't want to just prompt Claude with `Build me a website please` and hope for the best. This video sums up that approach perfectly.
 
-Similique sunt in culpa qui officia deserunt mollitia animi id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus omnis voluptas assumenda est.
+<YouTube id="eZxeWoMEHQQ" title="A youtube short titled - Vibe coding is gambling" />
 
-Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.
+So we're not doing that.
 
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae ab illo inventore veritatis. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt ut neque porro quisquam.
+As a fleshy human, I'd normally run a design phase - gather requirements, talk to stakeholders, produce documentation, decide how to build and test, and define acceptance criteria before touching a keyboard. For a small personal site that's overkill, but I believe process matters. So I ran a design phase - with AI.
+
+### How to Train Your Robot
+
+You can supply context to an AI agent in Claude Code using a `Claude.md` file. But I wanted to get moving - it was Friday evening, I had a glass of red wine, and time to kill. So using Claude.ai I created a Claude project instead, not using Claude code at all. Projects let you have multiple chats under shared context: custom instructions and uploaded files (images, documents, whatever).
+
+I created a project called `Tech Spec Writer` with the following custom instructions:
+
+```
+You are an expert Technical Architect and Business Analyst specializing in spec-driven development. Your goal is to help me write, refine, and maintain detailed specifications (spec.md) before any code is written.
+
+Drafting: Create structured specs including User Stories, Functional Requirements, Technical Constraints, and Acceptance Criteria.
+
+Clarifying: After reviewing my initial ideas, ask 5-8 probing questions to uncover edge cases, missing security considerations, or ambiguities.
+
+Standardizing: Ensure all specs adhere to a consistent structure.
+
+Verification: Define how each requirement can be verified (e.g., specific test commands).
+
+Always prioritize a spec-first approach-do not start implementing code until the spec is finalized.
+
+Final Specs.md output by you should follow this structure:
+
+    Title & Purpose: What are we building?
+    Requirements: Specific, bullet-pointed functional requirements.
+    Technical Constraints: Tech stack, security rules, performance metrics.
+    Verification/Acceptance Criteria: Exactly how to test that the spec is met.
+```
+
+I'd already prepared some content by creating a Career Coach project in a similar way - I asked it to interview me from my old CV and produce a better one. So armed with a shiny new CV, I gave my Spec Writer this prompt:
+
+```
+I want to build a personal website. It is largely to showcase myself by putting a website on my CV.
+
+It needs to be easy to maintain, easy to deploy, completely free to run.
+
+It must be deployable from a github repo.
+```
+
+It immediately came back with clarifying questions:
+
+> I love the idea - a personal site that actually works hard for you on a CV is a great asset. Before I draft the spec, I have some probing questions to make sure we get this right first time.
+>
+> 1. **Domain name** - do you have one, want to buy one, or are you happy with a free subdomain (e.g. `yourname.github.io`)?
+> 2. **Blog** - if you want one, will you write in Markdown, or do you want a CMS (like Netlify CMS or Contentlayer)?
+> 3. **Contact form** - since the stack must be free, a backend-less form service (Formspree, Web3Forms) is the likely route. Any preference, or is email-only fine?
+> 4. **Design** - do you have a rough aesthetic in mind (minimal/clean, bold/creative, dark mode, etc.) or a site you admire?
+> 5. **Analytics** - do you want to track visitors? (Fathom, Plausible, or plain Google Analytics - all have free tiers.)
+>
+> Take your time - the more detail here, the tighter the spec. 🎯
+
+Pretty solid opening questions.
+
+And so this continued - aesthetics, contact forms, domain names, deployment frequency. I gave it my new CV, told it not to include personal details like email or phone number, and it produced a full, detailed spec file with a list of open questions.
+
+We went back and forth. I added some security requirements:
+
+```
+One thing I'd forgot. Can we ensure that all security headers including a CSP are present and correctly configured. We can validate this by using the Mozilla HTTP Observatory Report and aim for an A+ score.
+
+Can you update the specs please.
+```
+
+It then worked through the best approach for generating nonces for inline scripts and styles - and since it had already recommended Cloudflare Pages, it proposed three options and recommended a Cloudflare Function to handle it.
+
+After several iterations, we had an approved spec document. Signed off.
+
+## Ready for Dev?
+
+With specs in hand, time to assign a developer.
+
+New project, new custom instructions:
+
+```
+Role
+
+You are an expert software engineer. You specialize in building, debugging, refactoring, and documenting complex software systems using best practices.
+
+Core Behaviors
+
+    Analyze First: Read the spec.md to understand context, architecture, and coding styles.
+    TDD Focus: Write tests before implementing features. Ensure tests pass.
+    Use Tools: Use ls, grep, cat, and read file tools to explore. Use bash to run tests and build processes. Do not guess file content.
+    Modular Code: Favor small, reusable functions and classes. Follow DRY (Don't Repeat Yourself) principles.
+    Security & Safety: Never expose API keys. Validate inputs. Prefer safe operations.
+    Concise Communication: Provide concise, technical updates. Focus on what was done and why.
+
+Workflow
+
+    Understand: Parse the user request. Ask clarifying questions only if necessary.
+    Plan: Briefly outline the steps.
+    Execute: Implement changes step-by-step.
+    Verify: Run tests. If tests fail, fix them immediately.
+    Commit: Suggest a semantic commit message.
+```
+
+And away we go:
+
+```
+I have a final spec called spec.md in the web repo. Use this to build the website as required. Ask me where you need help to complete steps, like setup of a Cloudflare account for example.
+
+Ask any clarifying questions.
+
+The build will be put back to the spec writer to validate it meets the spec.
+```
+
+After clarifying questions, concerns raised, concerns addressed - I had a tar archive to upload to the repo and instructions for the Cloudflare Pages setup.
+
+I followed them to the letter and... `Failed: error occurred while running build command`
+
+No worries. Give the AI the build log. It diagnosed the issues, produced a new archive, and asked me to commit the changes with a diff provided.
+
+The build was successful.
+
+![The office - with Steve Carell spraying champagne on a woman](https://media1.tenor.com/m/GMOvEqEbrGwAAAAC/the-office-steve-carell.gif)
+
+Spec to done in 40 minutes. Incredible. Wait - I wouldn't normally accept this. Where's the QA?
+
+### Let's Clean Out the Slop Bucket
+
+Bugs were present. None of the CSS was loading. I reported this back to the Dev and quickly assumed the role of QA myself. We worked down the acceptance criteria - confirming what worked and what didn't. New archives, code committed by me, builds triggered, verified and checked. We discussed minor deviations and agreed them until everything was boxed off.
+
+We were a pretty good team. But I realised that the gates in a normal development process - code review and QA - were me. I was the one preventing bad code from shipping. I was the gatekeeper, and I was the one accountable for it.
+
+That's worth sitting with for a moment. The AI didn't decide what was good enough - I did. It didn't judge whether a deviation from spec was acceptable - I did. Every meaningful decision in this process required a human with enough context to make a call. The AI was extraordinarily capable at execution. The accountability was entirely mine. That's not a limitation to engineer around. That's the answer to "can AI replace software engineers?" - not yet, and possibly not ever in the ways that matter most.
+
+1 hour 40 minutes from final spec. I asked for handover notes and went to demo the results with the original Spec Writer.
+
+The Spec Writer read the handover notes, reviewed the site, produced an extensive summary, asked me to run PageSpeed benchmarks (Performance 100 on both mobile and desktop, exceeding spec), and found an accessibility bug.
+
+Bug report written up. Back to the Dev. Fixed. Post-deploy regression checks added to `readme.md` - automatable in future. And we hit A+ on HTTP Observatory.
+
+Job done. But was that a secure development process? We needed external verification. Time to get a pen tester.
+
+## You're Absolutely Right!
+
+New project, new custom instructions:
+
+```
+You are an expert security researcher conducting authorized testing of a web application at a URL I give. Your goal is to identify OWASP Top 10 vulnerabilities, and scan the repo I provide.
+
+Follow a structured methodology: 1) Reconnaissance, 2) Vulnerability Assessment, 3) Exploitation, 4) Reporting. Document all methodology and findings. Always ask for permission before running any destructive or invasive tests.
+```
+
+The pen tester was given the URL and the repo. And it found things.
+
+- OSINT over-exposure - asked me to confirm no secrets had been pushed to the public repo
+- Dependency scanning not enabled
+- Tech stack disclosure in the footer
+- Reverse tabnapping vulnerabilities
+- No `robots.txt` or sitemap
+- Recommendation to never add an email address or contact form without reCAPTCHA
+
+It also looked at `package.json` and noted that many packages were out of date. Despite me explicitly stating in the spec to always use the latest LTS versions, the Dev hadn't.
+
+But that's fine - we now had a report. The pen test report went back to the Spec Writer, which turned it into a new spec - complete with updated acceptance criteria for the security findings. That's the loop working as intended: find it, spec it, fix it, verify it. Breaking changes meant this would be v2.0.0.
+
+Following a well-understood process and using AI as team members within that process is delivering results.
+
+I even pointed out we'd specified latest LTS versions and got the classic response:
+
+**"You're absolutely right!"**
+
+![You're absolutely right](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzA3uRriXvK_0FGFZBMackgSYz72bvRBdRNw&s)
+
+In fleshy human dev cycles, things get missed too. That's why we have processes to catch them - and we were catching them now.
+
+Work through the issues. Review. QA. Validate. Release v2.0.0.
+
+Rinse and repeat - same process, new feature. The blog you're reading now is v2.1.0, shipped the next day after another full dev cycle, a preview branch, and yes, more bugs.
+
+## So Is This Vibe Coding?
+
+No. And that's the point.
+
+Vibe coding is throwing away everything we've learned about building software - the process, the rigour, the gates - because the AI will sort it out.
+
+**It won't.**
+
+What this project actually required was my knowledge, my process, and my judgment. I stopped writing code and started directing an AI through a development lifecycle. That's not vibe coding - that's a new way of working, and there's a meaningful difference.
+
+The people figuring this out are treating AI like a capable but junior team member: you still need the spec, the review, the QA, the pen test. You just run it faster. AWS have started calling it an [AI-driven development lifecycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/) - same rigour, new tooling.
+
+Use it properly and you get real productivity gains. Hand it the keys without the process and it'll delete your prod database.
+
+Don't be this guy.
+
+<YouTube id="t6wKf5ZmK7g" title="Software Engineer vs CEO" />
+
+Full disclosure... I wrote this and edited it a bit with AI.
