@@ -15,11 +15,13 @@ import { Resvg } from '@resvg/resvg-js';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const BLOGS_DIR = join(ROOT, 'src/data/blogs');
-const OG_DIR = join(ROOT, 'public/og');
+const OG_DIR = join(ROOT, 'dist/og');
 const FONTS_DIR = join(ROOT, 'node_modules');
 
-// Ensure output dir exists
+// Ensure output dirs exist
+const PUBLIC_OG_DIR = join(ROOT, 'public/og');
 await mkdir(OG_DIR, { recursive: true });
+await mkdir(PUBLIC_OG_DIR, { recursive: true });
 
 // Load fonts
 async function loadFont(path) {
@@ -248,19 +250,26 @@ function postLayout(title, date, readingTime) {
   };
 }
 
-// Generate default OG image (only if it doesn't exist)
-const defaultPath = join(OG_DIR, 'default.png');
-if (!existsSync(defaultPath)) {
+// Generate default OG image (only if it doesn't exist in public/)
+const defaultSrc = join(ROOT, 'public/og/default.png');
+const defaultDist = join(OG_DIR, 'default.png');
+if (!existsSync(defaultSrc)) {
   console.log('[og] Generating default.png...');
   try {
     const png = await generateImage(defaultLayout());
-    await writeFile(defaultPath, png);
+    await writeFile(defaultSrc, png);
+    await writeFile(defaultDist, png);
     console.log('[og] default.png generated — please review before committing.');
   } catch (err) {
     console.error('[og] Failed to generate default.png:', err.message);
   }
 } else {
-  console.log('[og] default.png exists — skipping.');
+  // Copy committed default.png into dist/og/ if not already there
+  if (!existsSync(defaultDist)) {
+    const data = await readFile(defaultSrc);
+    await writeFile(defaultDist, data);
+  }
+  console.log('[og] default.png exists — skipping regeneration.');
 }
 
 // Process all MDX posts
@@ -289,9 +298,9 @@ for (const file of files) {
     continue;
   }
 
-  // Cache check: hash frontmatter fields used in image
+  // Cache check using a hash file in public/og/ (persists between builds via source)
   const hash = frontmatterHash(fm);
-  const hashFile = join(OG_DIR, `.${slug}.hash`);
+  const hashFile = join(ROOT, 'public/og', `.${slug}.hash`);
   if (existsSync(outPath) && existsSync(hashFile)) {
     const existing = await readFile(hashFile, 'utf8');
     if (existing.trim() === hash) {
