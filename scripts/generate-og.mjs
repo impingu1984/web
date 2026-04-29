@@ -15,7 +15,7 @@ import { Resvg } from '@resvg/resvg-js';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const BLOGS_DIR = join(ROOT, 'src/data/blogs');
-const OG_DIR = join(ROOT, 'public/og');
+const OG_DIR = join(ROOT, 'dist/og');
 const FONTS_DIR = join(ROOT, 'node_modules');
 
 // Ensure output dir exists
@@ -116,7 +116,7 @@ function defaultLayout() {
       style: {
         width: 1200,
         height: 630,
-        background: '#0a0e13',
+        background: '#0a0a0a',
         display: 'flex',
         alignItems: 'center',
         padding: '0 80px',
@@ -179,7 +179,7 @@ function postLayout(title, date, readingTime) {
       style: {
         width: 1200,
         height: 630,
-        background: '#0a0e13',
+        background: '#0a0a0a',
         display: 'flex',
         alignItems: 'center',
         padding: '0 80px',
@@ -248,19 +248,26 @@ function postLayout(title, date, readingTime) {
   };
 }
 
-// Generate default OG image (only if it doesn't exist)
-const defaultPath = join(OG_DIR, 'default.png');
-if (!existsSync(defaultPath)) {
+// Generate default OG image (only if it doesn't exist in public/)
+const defaultSrc = join(ROOT, 'public/og/default.png');
+const defaultDist = join(OG_DIR, 'default.png');
+if (!existsSync(defaultSrc)) {
   console.log('[og] Generating default.png...');
   try {
     const png = await generateImage(defaultLayout());
-    await writeFile(defaultPath, png);
+    await writeFile(defaultSrc, png);
+    await writeFile(defaultDist, png);
     console.log('[og] default.png generated — please review before committing.');
   } catch (err) {
     console.error('[og] Failed to generate default.png:', err.message);
   }
 } else {
-  console.log('[og] default.png exists — skipping.');
+  // Copy committed default.png into dist/og/ if not already there
+  if (!existsSync(defaultDist)) {
+    const data = await readFile(defaultSrc);
+    await writeFile(defaultDist, data);
+  }
+  console.log('[og] default.png exists — skipping regeneration.');
 }
 
 // Process all MDX posts
@@ -289,9 +296,9 @@ for (const file of files) {
     continue;
   }
 
-  // Cache check: hash frontmatter fields used in image
+  // Cache check using a hash file in public/og/ (persists between builds via source)
   const hash = frontmatterHash(fm);
-  const hashFile = join(OG_DIR, `.${slug}.hash`);
+  const hashFile = join(ROOT, 'public/og', `.${slug}.hash`);
   if (existsSync(outPath) && existsSync(hashFile)) {
     const existing = await readFile(hashFile, 'utf8');
     if (existing.trim() === hash) {
