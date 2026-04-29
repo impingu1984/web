@@ -18,8 +18,10 @@ const BLOGS_DIR = join(ROOT, 'src/data/blogs');
 const OG_DIR = join(ROOT, 'dist/og');
 const FONTS_DIR = join(ROOT, 'node_modules');
 
-// Ensure output dir exists
+// Ensure output dirs exist
+const PUBLIC_OG_DIR = join(ROOT, 'public/og');
 await mkdir(OG_DIR, { recursive: true });
+await mkdir(PUBLIC_OG_DIR, { recursive: true });
 
 // Load fonts
 async function loadFont(path) {
