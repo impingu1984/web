@@ -3,14 +3,14 @@
 | Field | Value |
 | --- | --- |
 | Spec ID | `SPEC-002` |
-| Version | `1.2.0` — APPROVED pending sign-off |
+| Version | `1.3.0` — **APPROVED** |
 | Date | 2026-08-05 |
 | Repo | `impingu1984/web` |
 | Routes | `/tools`, plus a primary-navigation entry |
 | Status | Not implemented |
 | Changed at 1.1.0 | Corrections after reading the repo: Nav has **no** active-state mechanism to reuse (R-13/R-14), and OG image generation needs extending (R-23). |
 | Changed at 1.2.0 | **New requirement R-16a** — the shared layout gains a `wide` variant, closing a gap where SPEC-001 R-62 referenced a prop this spec never defined. Plus scoping clarifications to R-20 and R-21 following SPEC-001 v2.0.0's decision to bundle `mermaid` on `/tools/sequence-diagram`. |
-| Build order | **Implement before SPEC-001.** SPEC-001 depends on this. |
+| Changed at 1.3.0 | **R-5 mechanism resolved.** Tool pages are statically named files (`src/pages/tools/{slug}.astro`), not a `getStaticPaths` catch-all like blog — so unlike blog, the registry's `draft` flag cannot prevent a page from being built. Resolved with a `postbuild` prune step (R-5a). |
 
 ---
 
@@ -68,9 +68,31 @@ than duplicating title and description strings.
 under `src/pages/tools/`, or if a page exists with no registry entry. A missing tool must be a
 build failure, not a missing card.
 
-**R-5.** `draft: true` entries SHALL follow the existing blog convention exactly: excluded from the
-production build entirely — no card, no route, no sitemap entry — and included when
-`INCLUDE_CONTENT_DRAFTS=true`, which is set on the Cloudflare Preview environment only.
+**R-5.** `draft: true` entries SHALL be excluded from the production build entirely — no card, no
+route, no sitemap entry — and included when `INCLUDE_CONTENT_DRAFTS=true`, which is set on the
+Cloudflare Preview environment only.
+
+**R-5a — Prune mechanism.** Blog achieves R-5 natively: `[...slug].astro` sources its paths from
+`getStaticPaths()` filtered by `INCLUDE_CONTENT_DRAFTS`, so a draft post's route is simply never
+generated. Tool pages do not have that shape — each is a statically named file
+(`src/pages/tools/{slug}.astro`, per SPEC-001 §3.2 and §3.3), which Astro builds unconditionally
+regardless of the registry's `draft` flag. Route exclusion therefore SHALL be enforced by a build
+step, not by routing:
+
+- A `postbuild` script, `scripts/prune-draft-tools.mjs`, SHALL run after `astro build` (and may run
+  before or after `generate-og.mjs`; order between the two is not significant since R-23 already
+  skips OG generation for draft entries).
+- For every registry entry with `draft: true` when `INCLUDE_CONTENT_DRAFTS` is unset, the script
+  SHALL delete `dist/tools/{slug}/` (or the equivalent build output path for that route).
+- **Sitemap ordering matters.** `@astrojs/sitemap` runs inside `astro build` itself, via its
+  `astro:build:done` hook — before `postbuild` runs. A draft tool's URL may therefore already be
+  written into `dist/sitemap-*.xml` by the time the route directory is deleted. The prune script
+  SHALL also parse the generated sitemap file(s) and remove any `<url>` entry whose `<loc>` matches
+  a pruned slug. Deleting the route without also editing the sitemap satisfies half of R-5 and
+  silently fails the other half.
+- This SHALL be covered by V-6 (draft excluded) in addition to the existing build-output check —
+  V-6's pass condition extends to "absent from `dist/sitemap-*.xml`" as well as absent card and
+  route.
 
 ### 2.2 Index page
 
@@ -187,6 +209,7 @@ nav, and the shared tool layout. Astro and Tailwind only.
 | Registry | `src/data/tools.ts`, TypeScript, typed |
 | Index route | `src/pages/tools/index.astro` |
 | Shared layout | `src/layouts/ToolLayout.astro` (or extend the existing layout — confirm against `src/layouts/` during implementation), with the `wide` prop of R-16a |
+| Draft prune | `scripts/prune-draft-tools.mjs`, run via `postbuild` alongside `generate-og.mjs` (R-5a) |
 | Client JS on `/tools` | Zero |
 | Dependencies added | None |
 
@@ -248,4 +271,4 @@ they exist. **Definition of done:** V-1 … V-15 all pass.
 
 | Role | Name | Status | Date |
 | --- | --- | --- | --- |
-| Author | Iain Morton | ☐ Approved | |
+| Author | Iain Morton | ☑ Approved | 2026-08-05 |

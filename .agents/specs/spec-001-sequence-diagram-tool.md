@@ -3,12 +3,12 @@
 | Field | Value |
 | --- | --- |
 | Spec ID | `SPEC-001` |
-| Version | `2.0.0` — DRAFT, not approved |
+| Version | `2.9.0` — **APPROVED** |
 | Date | 2026-08-05 |
 | Repo | `impingu1984/web` |
 | Route | `/tools/sequence-diagram` |
-| Depends on | **SPEC-002 (Tools Hub) — must be implemented first** |
-| Status | Not implemented — no code until §7 is signed |
+| Depends on | **SPEC-002 (Tools Hub) — implemented and signed off** |
+| Status | Approved, not implemented — §5 steps 2 and 3 (CSP spike, export spike) are gates on the first code written |
 
 ### Changelog
 
@@ -19,7 +19,16 @@
 | 1.1.0 | Collapsible help rail: syntax reference + user guide (R-45…R-51) |
 | 1.2.0 | Shareable links (R-52…R-61). Reversed the "no sharing" and "no persistence" non-goals |
 | 1.3.0 | Corrections after reading the repository. Zero CSP changes targeted; `data:` over `blob:`; site is dark-only |
-| **2.0.0** | **Breaking. The custom DSL is withdrawn and replaced by Mermaid `sequenceDiagram` syntax, rendered by a bundled `mermaid@11.16.1`. Styling moves out of the diagram source into a separate Mermaid-native YAML config document. Consequences: the 40 KB JS budget is withdrawn and replaced (§3.3), the `[pure]` module architecture is reduced (§3.2), Lighthouse Performance 100 on mobile is no longer a target (§3.3), and two former non-goals are reversed. Requirement disposition in §1.4.** |
+| 2.0.0 | Breaking. The custom DSL is withdrawn and replaced by Mermaid `sequenceDiagram` syntax, rendered by a bundled `mermaid@11.16.1`. Styling moves out of the diagram source into a separate Mermaid-native YAML config document. Consequences: the 40 KB JS budget is withdrawn and replaced (§3.3), the `[pure]` module architecture is reduced (§3.2), Lighthouse Performance 100 on mobile is no longer a target (§3.3), and two former non-goals are reversed. Requirement disposition in §1.4. |
+| 2.1.0 | Corrections after verifying `mermaid@11.16.1`'s actual installed behaviour (not just its docs). R-15 amended: role is extended, not overwritten. R-17/R-18 amended: `sequence.*` sub-key allowlist made explicit (8 new spacing/layout keys added, all per-role font keys excluded). D-14 closed: no `js-yaml` or any generic YAML library exists anywhere in Mermaid's dependency tree, so the first-party parser is not a fallback, it's the only option. |
+| 2.2.0 | Further corrections from the same verification pass. R-1: `--save-exact` required, repo has no `.npmrc`. R-3: exact type-detection mechanism specified (`parse()`'s `diagramType`, not a nonexistent `detectType`). R-7: `hash.loc.first_line` vs. 0-indexed `hash.line` off-by-one documented; confirmed a real no-hash error case exists. R-8: hint-table example list corrected — "unknown participant" doesn't occur, replaced with two real verified cases. R-11: nonce-capture mechanism corrected from `document.currentScript.nonce` (breaks for module scripts) to querying an already-nonced element's `.nonce` property. `deterministicIds`/snapshot-testing risk (R-9, R-41d, V-29) identified, resolution still open. |
+| 2.3.0 | `deterministicIds`/snapshot-testing risk resolved. R-9's rationale corrected (the setting is non-random, not cross-render-stable). R-41d and V-29 both amended to normalise IDs before comparison. Render pipeline and exported artefacts unaffected — the instability only matters when comparing two separate renders, which only these two verification paths do. |
+| 2.4.0 | R-67 amended: Safari has no `requestIdleCallback` in any stable release (verified against current browser-support data), so the idle-preload trigger silently never fires there. A `setTimeout`-based polyfill is now required so all four supported browsers get equivalent lazy-load behaviour. |
+| 2.5.0 | R-42 amended: explicit ordering constraint with SPEC-002 R-4's build-time registry/page consistency check — the registry entry must land in the same commit as the §5 step-6 route shell, not any earlier, or SPEC-002's own build check fails. |
+| 2.6.0 | R-59 amended: the 100 KB decompressed-envelope limit SHALL be enforced by incremental reads with an early `cancel()`, not by fully buffering the decompressed stream first — verified a naive full-buffer decode lets a sub-8,000-character fragment (under R-57's own refuse threshold) balloon to 100+ MB in memory before any size check can run. |
+| 2.7.0 | Two spec bugs fixed in §3: the YAML row in §3.1's stack table still described the pre-D-14 "reuse `js-yaml`" approach, now corrected to match the resolved decision; §3.6 trade-off 3 cited V-56 (themeCSS-in-links) where it meant V-65 (the snapshot gate), now corrected. §3.3's 195 KB Mermaid bundle-size claim independently re-measured by tracing every file a real render actually imports (18 files, not the 2 an initial naive check used) — 156 KB gzipped unminified, consistent with the spec's figure. |
+| 2.8.0 | V-60 strengthened: the hostile-payload test now requires a bomb that would decompress to tens of MB, not merely "past 100 KB" — a barely-over-limit payload doesn't distinguish R-59's required streaming enforcement (ADR-005) from the unsafe buffer-then-check approach it replaced, so the weaker wording couldn't actually catch a regression back to it. |
+| **2.9.0** | **R-17 amended: `fontFamily`/`fontSize` merge into `themeVariables`, not Mermaid's config root — verified `themeVariables.fontFamily` silently wins over a root-level `config.fontFamily` when both are set, so writing to the root (a literal reading of the old text) risked the user's font choice being silently overridden by any other code path touching `themeVariables.fontFamily`. D-10's stale "21 themeVariables" count corrected to 19, matching R-16's example.** |
 
 ---
 
@@ -117,6 +126,11 @@ interoperability is now the premise. "Zero runtime dependencies" is withdrawn an
 class names and theme variables are this tool's styling contract; a range would let a patch release
 restyle every diagram silently. Upgrades SHALL be a deliberate PR carrying updated snapshots (R-41).
 
+> **Verified:** this repo has no `.npmrc` and `npm config get save-exact` is `false`, so a plain
+> `npm install mermaid@11.16.1` writes `"mermaid": "^11.16.1"` — the exact range R-1 forbids.
+> Installation SHALL use `npm install mermaid@11.16.1 --save-exact` (or the `package.json` entry
+> SHALL be hand-verified as an exact version after install).
+
 **R-2.** The tool SHALL accept any construct Mermaid's `sequenceDiagram` grammar accepts, except
 those forbidden by R-4. A **verified subset** is defined as the constructs covered by the help
 reference (R-46) and by the acceptance test V-1:
@@ -139,6 +153,12 @@ be rejected before rendering, with a message naming the detected diagram type an
 tool renders sequence diagrams only. It SHALL NOT attempt to render other diagram types even though
 the bundled Mermaid is capable of it — the chunk cost of every other renderer is not paid (§3.3),
 and none of them are styled, tested, or documented here.
+
+> **Verified mechanism:** there is no working `detectType` export at runtime despite one appearing
+> in Mermaid's `.d.ts`. Detection SHALL instead use `mermaid.parse(source, { suppressErrors: true })`,
+> which returns `{ diagramType, config }` without rendering anything. A sequence diagram reports
+> `diagramType === 'sequence'` — **not** `'sequenceDiagram'` — the guard SHALL compare against the
+> reported type, not the grammar keyword.
 
 **R-4 — Forbidden constructs.** The `link`, `links`, and `properties` statements SHALL be rejected
 at parse time with a specific diagnostic explaining why.
@@ -170,10 +190,35 @@ is available it SHALL be used, the entry SHALL be clickable, and it SHALL move t
 the gutter. Where no line number is available the entry SHALL still render, without a line number
 and without a click target, rather than being suppressed.
 
+> **Verified — off-by-one trap:** a real parse error's `hash` carries two line fields with different
+> indexing: `hash.line` is **0-indexed**, `hash.loc.first_line` / `last_line` is **1-indexed** and
+> matches the human-readable text in the thrown error's `message`. `diagnostics.ts` SHALL use
+> `hash.loc.first_line`; using `hash.line` directly puts every click-to-locate one line too high.
+> Also verified: `render()` throws the identical hash shape as `parse()`, so this applies uniformly
+> to the actual re-render path (R-12), not just an initial parse.
+>
+> Also verified: not every error carries a `hash` — a semantic error (e.g. `destroy` with no
+> matching destroying message, see R-8) is thrown with no `hash` at all. The "no line number,
+> render anyway" fallback above is exercised by a real, common case, not a theoretical one.
+
 **R-8.** Mermaid's raw error text SHALL be shown verbatim, prefixed by a plain-language hint drawn
 from a lookup table of the common cases (unclosed `alt`/`loop`/`opt`, `else` outside a block,
-unknown participant, missing `end`). The verbatim text is kept because it is searchable against
-Mermaid's own documentation and issue tracker; the hint is added because it is not friendly.
+`deactivate` without a prior `activate`, `destroy` without a matching destroying message, missing
+`end`). The verbatim text is kept because it is searchable against Mermaid's own documentation and
+issue tracker; the hint is added because it is not friendly.
+
+> **Verified against real parse/semantic errors from `mermaid@11.16.1`:**
+> - "Unknown participant" (present in earlier drafts of this list) **does not occur** — Mermaid
+>   auto-declares any actor referenced anywhere (`note left of Zzz`, `activate Ghost` both parse
+>   clean, no error). There is no undeclared-participant error case in the grammar.
+> - `deactivate` on a never-activated participant throws
+>   `"Trying to inactivate an inactive participant (X)"`, with a normal hash and line number — a
+>   real, common mistake, now in the hint table above.
+> - `destroy X` with no matching destroying message throws
+>   `"The destroyed participant undefined does not have an associated destroying message..."` — note
+>   the literal, confusing `"undefined"` (a Mermaid message-interpolation bug) — **and this error has
+>   no `.hash` at all.** The hint for this case SHALL specifically address the confusing raw text,
+>   since R-8 shows it verbatim.
 
 ### 2.2 Rendering
 
@@ -187,8 +232,19 @@ with **exactly** this configuration, which SHALL NOT be overridable from either 
 | `sequence.htmlLabels` | `false` | **Verified:** `true` selects the `byFo` path and emits `<foreignObject>`, which canvas rasterisation drops — PNG export loses every label (R-25) |
 | `sequence.useMaxWidth` | `false` | The preview owns sizing via zoom (R-13); `useMaxWidth` injects a responsive `style` attribute that fights it and corrupts export dimensions |
 | `sequence.forceMenus` | `false` | Complements R-4 |
-| `deterministicIds` | `true` | Stable element IDs so export diffs and snapshot tests are meaningful |
+| `deterministicIds` | `true` | Non-random IDs, not random `Math.random()` ones. **Verified this does NOT mean stable across separate `render()` calls** — see the note below the table |
 | `logLevel` | `'error'` | No console noise in production |
+
+> **Verified — `deterministicIds` does not give cross-render ID stability.** Rendering the same
+> source twice in the same session produces `actor0`/`actor1`/`actor2`... — a persistent
+> module-level counter that increments on every `render()` call, unaffected by `deterministicIds`
+> or `deterministicIDSeed`, and not reset by `mermaidAPI.reset()`. A single exported artefact is
+> unaffected by this (it is internally self-consistent regardless of what number its IDs happen to
+> be), but anything that **compares two separate renders** — R-41d's snapshot suite, V-29's
+> style-override diff — will see ID churn as a false difference, unrelated to any real content or
+> Mermaid-version change. R-41d and V-29 SHALL normalise IDs (strip or replace `id="..."` and the
+> matching `url(#...)` / `href="#..."` references with positional placeholders) before comparing;
+> the render pipeline and every exported artefact are otherwise unaffected and need no change.
 
 **R-10 — Output sanitiser.** The SVG string returned by Mermaid SHALL pass through a first-party
 sanitiser before it is inserted into the document or handed to any exporter. This is not
@@ -210,8 +266,16 @@ changed the output shape. V-22 covers this.
 is `style-src 'self' 'nonce-{n}'` with no `unsafe-inline`, so that element is inert on insertion and
 the diagram renders unstyled.
 
-- The island SHALL capture the request nonce at initialisation from its own script element
-  (`document.currentScript.nonce`) and stamp it onto the style element before insertion.
+- The island SHALL capture the request nonce at initialisation via
+  `document.querySelector('[nonce]').nonce` — reading the `.nonce` **IDL property**, not the
+  reflected attribute (browsers deliberately keep the property readable by same-document script
+  even though the attribute is blanked after use) — and stamp it onto the style element before
+  insertion. **Not** `document.currentScript.nonce`: per the HTML spec, `document.currentScript` is
+  `null` while a *module* script executes, and Astro compiles client `<script>` blocks (anything
+  without `is:inline`) to `<script type="module">` by default — the mechanism as originally
+  described here would silently fail to find a nonce. The middleware nonces every `<script>` and
+  `<style>` tag in the response, so there is always at least one already-nonced element to query.
+  To be proven in the step-2 CSP spike (V-31–V-33) against a real build, not assumed.
 - **No CSP change is permitted to solve this.** `unsafe-inline` on `style-src` SHALL NOT be
   introduced under any circumstance. If nonce stamping proves unworkable, the fallback is to strip
   Mermaid's style element and reapply the same CSS from a nonce-bearing stylesheet the tool
@@ -230,11 +294,24 @@ output.
 no `<script>`, no `<foreignObject>`, no inline event handler, and no external reference. Guaranteed
 by R-9 and R-10 and asserted by test (R-41) and by V-17, V-20, V-22.
 
-**R-15 — Accessible output.** The emitted SVG SHALL carry `role="img"`, a `<title>` from the
-diagram's `accTitle` or `title` (falling back to `"Sequence diagram"`), and a `<desc>` from
-`accDescr` where present. Where `accDescr` is absent the tool SHALL generate a plain-text
-linearisation of the messages and insert it as `<desc>`. The Guide SHALL recommend `accTitle` /
-`accDescr` for shared diagrams.
+**R-15 — Accessible output.** Verified against real `mermaid@11.16.1` output: the SVG root already
+carries `role="graphics-document document"` and `aria-roledescription="sequence"` by default — richer
+than a plain image role, and worth keeping rather than discarding.
+
+- The sanitiser SHALL **extend, not overwrite**, Mermaid's `role` attribute: append `img` as a final
+  fallback token, producing `role="graphics-document document img"`. ARIA resolves a space-separated
+  role list left to right by first-supported-token, so assistive technology that understands
+  `graphics-document` gets the richer semantics, and anything that doesn't falls through to `img`.
+  This is strictly additive — nothing is stripped from what Mermaid already emits correctly.
+- The emitted SVG SHALL carry a `<title>` from the diagram's `accTitle` or `title` (falling back to
+  `"Sequence diagram"`), and a `<desc>` from `accDescr` where present. **Verified:** Mermaid only
+  auto-generates a correctly wired `<title>`/`<desc>` (with matching `aria-labelledby` /
+  `aria-describedby`) when `accTitle`/`accDescr` are used — a plain `title` directive alone produces
+  no `<title>` element, and with none of the three present neither element appears at all. The
+  `title`-only fallback and the "Sequence diagram" default are therefore first-party work in every
+  case except `accTitle` being present, not something to lean on Mermaid for generally.
+- Where `accDescr` is absent the tool SHALL generate a plain-text linearisation of the messages and
+  insert it as `<desc>`. The Guide SHALL recommend `accTitle` / `accDescr` for shared diagrams.
 
 ### 2.3 Style document
 
@@ -294,6 +371,25 @@ untrusted input (§2.8), and Mermaid's config surface includes `securityLevel`, 
 re-enable exactly the behaviours R-4, R-9, and R-10 exist to prevent. The merge SHALL be an
 allowlisted field-by-field copy, never a recursive object merge.
 
+**`fontFamily` and `fontSize` merge into `themeVariables`, not Mermaid's config root — this is
+where they read from in the document (R-16's example already nests them correctly) and it is not
+optional.** Verified against `mermaid@11.16.1`: Mermaid has a genuine root-level `config.fontFamily`
+*and* a separately-honoured `themeVariables.fontFamily`, and when both are set to different values,
+**`themeVariables.fontFamily` wins** — silently, no error. If the allowlisted copy ever wrote these
+two validated values to the config root instead (a literal reading of "top-level keys" above), any
+other code path that later touches `themeVariables.fontFamily` — a preset, a future feature — would
+silently override the user's font choice with no diagnostic. The two keys are listed here because
+they are validated the same way as everything else in this allowlist and arrive at the top level of
+the *style document*; they are **not** top-level in Mermaid's *config object* they get copied into.
+
+**`sequence` is itself an object, not a scalar — the same allowlist principle applies one level
+down.** Verified against `mermaid@11.16.1`'s actual default config: `sequence.*` has roughly 27
+real keys, not the 8 shown in R-16's example document. Accepting the `sequence` key at the
+top-level allowlist without also allowlisting its sub-keys would reopen exactly the hole R-17
+exists to close, one level deeper. R-18's table is therefore the complete, closed list of accepted
+`sequence.*` sub-keys — any `sequence.*` key not in that table SHALL be rejected with a diagnostic
+naming it, identically to an unrecognised top-level key.
+
 **R-18 — Value validation.** Every value SHALL be validated before merge; an invalid value SHALL
 fall back to the preset default and raise a `warning` diagnostic (R-7).
 
@@ -301,11 +397,39 @@ fall back to the preset default and raise a `warning` diagnostic (R-7).
 | --- | --- |
 | Colours (`themeVariables.*Color`, `*Bkg*`, `*Border*`) | `^#([0-9a-fA-F]{3}\|[0-9a-fA-F]{6}\|[0-9a-fA-F]{8})$` only. No named colours, no `rgb()`, no `hsl()`, no `url()`, no `var()` |
 | `theme` | Enum: `base` only. Mermaid's other built-in themes are not styled or tested here |
-| `sequence.*` integers | Range-checked per key (e.g. `actorMargin` 10–300, `messageMargin` 10–200) |
-| `sequence.*` booleans and enums | Type- and membership-checked |
 | `fontFamily` | Allowlist of three stacks (sans / serif / mono), resolved to fixed system stacks. No web fonts SHALL be loaded or referenced |
 | `fontSize` | Integer 10–24, serialised with a `px` suffix |
 | `themeCSS` | Per R-64 |
+
+**`sequence.*` — complete closed allowlist.** No key outside this table is accepted under
+`sequence`. Deliberately excludes every per-role font key (`actorFontFamily`/`Size`/`Weight`,
+`noteFontFamily`/`Size`/`Weight`/`Align`, `messageFontFamily`/`Size`/`Weight`) — font control SHALL
+have exactly one source of truth, the top-level `fontFamily`/`fontSize` keys above. Allowing
+per-role overrides here would create a second, competing font system and complicate R-20's
+bidirectional sync (which value wins when the panel and a per-role override disagree). If a
+diagram needs per-role font differentiation, that is out of scope for this tool.
+
+| `sequence.*` key | Type / rule | Mermaid default |
+| --- | --- | --- |
+| `actorMargin` | Integer 10–300 | 50 |
+| `messageMargin` | Integer 10–200 | 35 |
+| `boxMargin` | Integer 0–100 | 10 |
+| `noteMargin` | Integer 0–100 | 10 |
+| `mirrorActors` | Boolean | `true` |
+| `showSequenceNumbers` | Boolean | `false` |
+| `messageAlign` | Enum: `left` \| `center` \| `right` | `center` |
+| `rightAngles` | Boolean | `false` |
+| `activationWidth` | Integer 2–50 | 10 |
+| `diagramMarginX` | Integer 0–200 | 50 |
+| `diagramMarginY` | Integer 0–100 | 10 |
+| `boxTextMargin` | Integer 0–50 | 5 |
+| `wrap` | Boolean | `false` |
+| `wrapPadding` | Integer 0–50 | 10 |
+| `labelBoxWidth` | Integer 10–200 | 50 |
+| `labelBoxHeight` | Integer 10–100 | 20 |
+
+Range bounds were chosen to comfortably bracket Mermaid's own defaults (verified above) — a
+**Reset style** (R-23) SHALL never itself produce a value the validator would reject.
 
 **R-19 — Presets.** Four presets SHALL ship, each a complete style document:
 
@@ -447,6 +571,15 @@ first keystroke in either editor, first interaction with any rail control, or `r
 It SHALL NOT block first paint, and the route SHALL remain usable as a static page until it resolves.
 A visible, non-blocking indicator SHALL show while it loads.
 
+> **Verified — Safari has no `requestIdleCallback`.** Checked current browser support directly:
+> Safari does not implement `requestIdleCallback` in any stable release, desktop or iOS — WebKit
+> ships it only behind a developer feature flag essentially no visitor enables. Chrome, Firefox, and
+> Edge all support it. Since §3.5 explicitly puts Safari in scope, R-67 as written means Safari
+> visitors get **no idle-time preloading at all** — the chunk only starts loading on the first real
+> interaction, making the first edit feel slower than on every other supported browser, silently. A
+> `setTimeout`-based `requestIdleCallback` polyfill (the standard shim for this exact gap) SHALL be
+> used so all four supported browsers get equivalent idle-preload behaviour.
+
 **R-36 — Unload guard.** A `beforeunload` handler SHALL warn before navigating away when either
 document differs from the state as loaded — sample or link-loaded (R-61). This stores nothing.
 
@@ -541,6 +674,14 @@ relax the policy. Verified by V-23, which is a gate on step 1 of implementation,
 **R-42.** A registry entry SHALL be added to `src/data/tools.ts` per SPEC-002 R-2, with
 `slug: "sequence-diagram"`. The route SHALL use the shared tool layout (SPEC-002 R-16).
 
+> **Ordering constraint with SPEC-002 R-4.** SPEC-002 R-4's build-time check fails the build if a
+> registry slug has no corresponding page under `src/pages/tools/` — unconditionally, `draft: true`
+> or not. Per §5's implementation order, the actual route file
+> (`src/pages/tools/sequence-diagram.astro`) is not created until **step 6**. The registry entry
+> from this requirement SHALL therefore land in the **same commit** as the step-6 route shell, not
+> any earlier — adding it during step 1 (SPEC-002 setup) or any other point before the route file
+> exists trips SPEC-002's own build check with a confusing, easy-to-misdiagnose failure.
+
 **R-43.** The entry SHALL ship `draft: true` and be flipped to `draft: false` in the same PR that
 promotes the verified feature to `main`.
 
@@ -599,6 +740,19 @@ or `.mmd` export.
 | Block nesting depth | 20 | Abort before render, error |
 | `themeCSS` | **Stripped unconditionally** | Silent removal, `info` diagnostic on load |
 
+- **The decompressed envelope size limit SHALL be enforced by incremental reads, never by fully
+  buffering the decompressed stream and checking its length afterward.** Verified: `deflate-raw`
+  compresses realistic repetitive content at roughly 336:1 (encoded-fragment-characters to
+  decompressed bytes) — a fragment of a few hundred KB, itself far short of R-57's own 8,000-character
+  refuse threshold, decompresses to over 100 MB in well under half a second on ordinary hardware. A
+  naive `await new Response(stream).arrayBuffer()` fully materialises that before any size check can
+  run — by the time the check fires, the cost it exists to prevent has already been paid, which on a
+  memory-constrained mobile browser is a real crash, not a theoretical one. There is no cheaper
+  shortcut via fragment length either: a fragment safely under R-57's threshold can still decompress
+  past this limit, so pre-checking the encoded length is not a substitute. The decoder SHALL instead
+  get a reader from the `DecompressionStream`'s `readable`, accumulate bytes chunk by chunk, and
+  `cancel()` the stream — discarding whatever has been produced so far — the instant the running
+  total exceeds 100 KB.
 - The decode path SHALL be wrapped so no malformed input produces an uncaught exception.
 - Mermaid's own `maxTextSize` SHALL additionally be set below the diagram document limit.
 - The R-17 allowlist and R-18 validation apply unchanged to link-sourced style. They were written for
@@ -626,7 +780,7 @@ or from the sample.
 | Diagram engine | `mermaid@11.16.1`, exact pin, dynamically imported (R-67) |
 | Styling | Tailwind CSS (existing) for tool chrome. Diagram styling is Mermaid config driven |
 | Editors | Plain `<textarea>` with synchronised gutters. **No CodeMirror / Monaco / Ace** |
-| YAML | Parsed by the `js-yaml` instance already inside the Mermaid bundle where reachable through a supported entry point; otherwise a first-party parser restricted to the R-17 key set. **No second YAML dependency SHALL be added.** Resolve during step 2 (§5) |
+| YAML | **First-party parser, restricted to the R-17/R-18 key set (D-14, resolved).** Verified: no `js-yaml` or any generic YAML library exists anywhere in Mermaid's dependency tree, direct or transitive — there was no bundled instance to reach for. **No second YAML dependency SHALL be added** |
 | Package manager | `npm` (existing). Node 24 per `.nvmrc` |
 | Runtime dependencies | One: `mermaid` |
 | Dev dependencies added | `vitest`, `jsdom` |
@@ -729,7 +883,7 @@ Recorded so they are not rediscovered as bugs.
 2. **We do not own the layout.** Spacing is what `sequence.*` exposes. Where Mermaid offers no knob,
    the answer is "not supported" — not a CSS hack against internal geometry.
 3. **Mermaid's class names are our styling contract.** A minor release can rename them. Mitigated by
-   the exact pin (R-1), snapshot tests, and V-56.
+   the exact pin (R-1), snapshot tests, and V-65.
 4. **195 KB of third-party JavaScript on a site with a zero-dependency ethos.** Accepted knowingly:
    it buys the full grammar, portability to every other Mermaid consumer, and a rendering engine that
    is far better tested than a first-party one would be. Mitigated by lazy loading (R-67), the
@@ -793,6 +947,11 @@ targeting `main`, on Node 24.
 **R-41d.** A snapshot test SHALL capture the rendered SVG of the R-38 sample under each of the four
 presets. A Mermaid upgrade that changes output SHALL therefore fail CI and require a reviewed
 snapshot update. This is the primary defence for trade-off 3.
+
+Per R-9's verified note on `deterministicIds`, the captured snapshot SHALL be normalised before
+storage and comparison — `id="..."` and the matching `url(#...)`/`href="#..."` references replaced
+with positional placeholders — so the gate fails on a real Mermaid-output change and only on that,
+not on which render in the process happened to run first.
 
 ### 3.9 Page width and social image
 
@@ -861,7 +1020,7 @@ checklist in `README.md` still passes after promotion.
 | V-26 | PNG background | Export with a dark style | Background matches the effective background; not transparent, not white |
 | V-27 | HTML export | Open with the Network tab recording | Zero network requests; `grep -Ec "<script\|<link\|http" diagram.html` returns `0` |
 | V-28 | Zoom independence | Zoom to 400 %, export SVG and PNG | Dimensions identical to 100 % |
-| V-29 | Style override | Author in Site, export SVG at Current / Light / Dark / Print | Four files; **identical geometry**, only fill and stroke values differ — verify by diff |
+| V-29 | Style override | Author in Site, export SVG at Current / Light / Dark / Print | Four files; **identical geometry**, only fill and stroke values differ — verify by diff **with IDs normalised first** (per R-9's note — raw IDs differ between the four renders regardless of style and are expected noise, not a failure) |
 | V-30 | Override non-destructive | Export with **Light** selected while authoring in Site | Both documents unchanged; panel unchanged; preview still Site |
 
 ### 4.4 Security, CSP, and performance
@@ -907,7 +1066,7 @@ checklist in `README.md` still passes after promotion.
 | V-57 | Version rejection | Hand-edit the fragment to `#d=9.<payload>` | "Newer version" message; sample loaded; no partial render |
 | V-58 | Size budget | Exceed 2,000 characters, then 8,000 | Warning at the first; refusal plus export pointer at the second; length reported both times |
 | V-59 | Malformed payload | `#d=2.@@@@`, `#d=2.`, `#d=`, `#d=2.dHJ1bmNhdGVk`, and a payload with one character deleted | Every case: readable error, sample loaded, no uncaught exception |
-| V-60 | Hostile payloads | A payload decompressing past 100 KB; one with 3,000 statements; one with 60 participants; one setting `securityLevel: loose` | All rejected before render with readable messages; tab responsive; config never merged |
+| V-60 | Hostile payloads | A payload compressed at a high ratio that would decompress to **tens of MB** if fully materialised (not merely "past 100 KB" — see R-59's note: a naive buffer-then-check decoder passes a barely-over-limit payload just as easily as a safe one, so the test payload must be large enough to actually distinguish streaming enforcement from buffer-then-check); one with 3,000 statements; one with 60 participants; one setting `securityLevel: loose` | All rejected before render with readable messages; tab responsive; config never merged; memory does not spike to the fully-decompressed size |
 | V-61 | Injection via link | Encode the V-34 inputs into a link and open it | No alert; text literal; exports equally inert |
 | V-62 | No ambient URL writes | Type for 30 s watching the address bar, then press Back | Address bar unchanged; Back leaves the tool |
 | V-63 | Feature detection | Override `CompressionStream` to `undefined` before init | Copy link disabled with an explanation; rest of the tool functional |
@@ -966,11 +1125,11 @@ is invested.
 | D-7 | Link payload location | **URL fragment**, not query string (R-53) |
 | **D-8** | **Diagram engine** | **RESOLVED — bundle `mermaid@11.16.1`.** Chosen over a first-party Mermaid-compatible parser. Buys the complete grammar, portability to every other Mermaid consumer, and a far better tested renderer. Costs 195 KB gzipped, 21 transitive dependencies, the `[pure]` layout architecture, and Lighthouse Performance 100 on mobile. Mitigated by R-38a, R-67, R-44. **Conditional on the step 2 and step 3 gates in §5** |
 | **D-9** | **Style document format** | **RESOLVED — Mermaid-native YAML config.** No invented keys, so `themeCSS` serves as the advanced escape hatch and merged export stays portable (R-16, R-66). Cost: the Style UI is bounded by what Mermaid's config exposes |
-| **D-10** | **Styling depth** | **RESOLVED — two layers.** Layer 1: the 21 sequence `themeVariables` plus `sequence.*` spacing, driven by grouped, validated, labelled controls with four presets. Layer 2: `themeCSS`, behind an Advanced disclosure, property-allowlisted and stripped from links (R-64) |
+| **D-10** | **Styling depth** | **RESOLVED — two layers.** Layer 1: the 19 sequence `themeVariables` (17 colour variables plus `fontFamily`/`fontSize`, per R-16's example — corrected from a stale "21," R-17) plus the 16-key `sequence.*` allowlist (R-18, ADR-003), driven by grouped, validated, labelled controls with four presets. Layer 2: `themeCSS`, behind an Advanced disclosure, property-allowlisted and stripped from links (R-64) |
 | **D-11** | **Grammar scope** | **RESOLVED — render everything, vouch for a subset.** R-2 defines the verified subset; anything else Mermaid accepts renders but is undocumented and untested |
 | **D-12** | **Version policy** | **RESOLVED — exact pin, no auto-merge.** Upgrades are reviewed PRs gated by R-41d snapshots |
 | **D-13** | **`themeCSS` in links** | **RESOLVED — stripped.** Untrusted CSS can exfiltrate and obscure. It survives in files and exports, which are user-initiated |
-| D-14 | YAML parser source | **OPEN — resolve in step 4.** Reuse the instance inside the Mermaid bundle if reachable through a supported entry point; otherwise a first-party parser restricted to the R-17 key set. **A second YAML dependency SHALL NOT be added** |
+| **D-14** | **YAML parser source** | **RESOLVED — first-party parser, not a fallback.** Verified against the installed `mermaid@11.16.1` dependency tree: no `js-yaml`, and no generic YAML library at all, exists anywhere in it, direct or transitive. Mermaid's own frontmatter handling comes from `@mermaid-js/parser`, a purpose-built Langium/Chevrotain grammar for Mermaid's specific frontmatter shape — not a reusable `load()`/`dump()` API. The "otherwise" branch of the original decision is therefore the only path; there was nothing to reach. Made tractable by R-17/R-18's narrow, closed key set (§3.1): the parser can be a targeted find-key/replace-value-span edit against the existing text rather than a general YAML CST parser, which is what R-20's comment- and key-order-preserving round-trip actually needs anyway — a full parse-then-regenerate approach (what `js-yaml` would have done even if present) can't preserve comments on its own. **A second YAML dependency SHALL NOT be added** |
 | D-15 | Multi-diagram support | **DEFERRED.** Flowchart and others are already in the bundle, but none are styled, tested, or documented. A future spec, not a stretch goal |
 
 ---
@@ -979,7 +1138,7 @@ is invested.
 
 | Role | Name | Status | Date |
 | --- | --- | --- | --- |
-| Author | Iain Morton | ☐ Approved | |
+| Author | Iain Morton | ☑ Approved | 2026-08-05 |
 
 Implementation SHALL NOT begin until this table is completed. §5 steps 2 and 3 are gates: failing
 either reopens D-8 before further work.
